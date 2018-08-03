@@ -2,8 +2,8 @@
 
 ### Com funciona?
 
- ## Versió [NUMERO] - *CodeName*
- 
+ ### Versió [NUMERO] - *CodeName*
+
   * Canvi 1
   * Canvi 2
   * ...
