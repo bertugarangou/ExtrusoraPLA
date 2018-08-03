@@ -1,7 +1,7 @@
 # Historial de versions
 
-## Com funciona?
-
+## Com funciona:
+---
  ## Versió [NUMERO] (Data) - *CodeName*
  ##[No Funcional]
 
