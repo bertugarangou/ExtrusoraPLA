@@ -18,6 +18,6 @@
  * [#Num. de cas 4] Descripció
 
  ### Més informació
- * [Commits]()
+ * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/releases/tag/0.1)
 
 ---
