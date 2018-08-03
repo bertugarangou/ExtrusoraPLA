@@ -18,6 +18,6 @@
  * [#Num. de cas 4] Descripció
 
  ### Més informació
- * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/releases/tag/0.1)
+ * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.1...master?diff=unified&name=master)
 
 ---
