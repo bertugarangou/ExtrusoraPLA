@@ -8,7 +8,7 @@
     curs 2018/2019, tutor Jordi Fanals Oriol,
     codi amb Arduino IDE 1.8.5,
 
-  Registre: 
+  Registre:
    - Versió extrusora: v1
    - Versió codi (segurament fitxer actual): v2
 
@@ -17,8 +17,8 @@
     per Albert Garangou Culebras,
     modificat per últim cop el XX de XXXXXXXX de 2018.
 
-  Aquesta obra (codi i extrusora, obres digitals com físiques) està subjecta a la llicència de Reconeixement-NoComercial-CompartirIgual 4.0 Internacional Creative Commons.
-  Per veure una còpia de la llicència, visiteu http://creativecommons.org/licenses/by-nc-sa/4.0/.
+    Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
+    This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
 */
 
@@ -48,7 +48,7 @@ int pasGuide [4][4] = {  //iniciem la matriu i li diguem que és de 4x4 valors, 
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
-void loop() { 
+void loop() {
 }
 /*++++++++++++++++Processos++++++++++++++++*/
 
