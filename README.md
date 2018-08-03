@@ -28,11 +28,16 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 
 * **Albert Garangou Culebras** - *Autor principal*
 
-## License
+## Llicència
 
-Aquesta obra està subjecta a la llicència de Reconeixement-NoComercial-CompartirIgual 4.0 Internacional Creative Commons. Per veure una còpia de la llicència, visiteu http://creativecommons.org/licenses/by-nc-sa/4.0/.
+Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
-Podeu trobar una còpia a [LICENSE.md](LICENSE.md) i més detalls.
+    * *Es pot comercialitzar*
+    * *Es pot distribuir d'igual manera i utilitzar lliurament* *
+    * *S'ha d'atribuir a l'autor*
+    -k-
+Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls.
 
 ## Reconeixaments
 
