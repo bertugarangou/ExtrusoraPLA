@@ -9,7 +9,11 @@ Extrusora de PLA controlada amb Arduino Mega 2560.
 * **Extrusora muntada.** Tremuga, compartiment amb vis-sens-fi, boquilla, sistema de refrigeració i sistema de bobinatge.
 * **Font d'alimentació.** Per l'Arduino, ventiladors i motors i resistència.
 
-Podeu trobar les peces dissenyades en 3D al directori [Parts 3D](/Parts3D/) i els plànols/esbosos/cròquis a [Esquemes](/Esquemes/)
+#### Peces en 3D
+
+ Algunes peces han sigut dissenyades des de zero i impreses en 3D (PLA), es poden trobar a [Parts3D](/Parts3D). Per dissenyar-les s'ha utilitzat el programa [Autodesk Inventor Pro 2018/2019](https://www.autodesk.com/products/inventor/overview) i [Fusion 360](https://www.autodesk.com/products/fusion-360/overview), per tant, els fitxers penjats estan en el format ".ipt" o "". A més a més, estan penjades les mateixes peces en el format ".stl" per si no es tenen els anteriors programes. Els fitxers ".stl" (STereoLithography/Standard Tessellation Language) permeten ser cargats per un programa com [Ultimaker Cura](https://ultimaker.com/en/products/ultimaker-cura-software) (codi obert) o [Simplify3D](https://www.simplify3d.com/) (no és de codi obert) entre d'altres per convertir-se en un format llegible per les impresores i especificar certes configuracions per l'impresió posterior.
+
+ Els arxius de les versions antigues de peces ubicades a [Parts_old](/Parts3D/Parts_old), no tenen cap còpia amb l'extensió ".stl".
 
 ### Instalació
 
