@@ -1,14 +1,24 @@
 # Historial de versions
 
-### Com funciona?
+## Com funciona?
 
  ## Versió [NUMERO] - *CodeName*
- ###[Funcional/No funcional]
+ ## (Data)
+ ##[No Funcional]
 
-  * Canvi 1
-  * Canvi 2
-  * ...
+ ### Millores
+
+  * [#Num. de cas 1] Descripció
+  * [#Num. de cas 2] Descripció
+      * Contingut
+
+ ### Correccions
+  * [#Num. de cas 3] Descripció
+
+### Errors coneguts
+ * [#Num. de cas 4] Descripció
+
+ ### Més informació
+ * [Commits]()
 
 ---
-
-Versió
