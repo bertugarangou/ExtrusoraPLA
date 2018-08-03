@@ -25,8 +25,12 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 
 ## Referències
 
-* [Github](https://github.com/bertugarangou/ExtrusoraPLA/) - Sistema al núvol per la documentació
-* [Arduino](https://www.arduino.cc/) - Electrònica open-source
+* [Github](https://github.com/bertugarangou/ExtrusoraPLA/) - Sistema al núvol
+* [Arduino](https://www.arduino.cc/) - Software
+* [Autodesk]() - Software
+* [Autodesk Inventor](https://www.autodesk.com/products/inventor/overview) - Software CAD 3D
+* [Autodesk Fusion](https://www.autodesk.com/products/fusion-360/overview) - Software CAD 3D
+
 
 ## Authors
 
