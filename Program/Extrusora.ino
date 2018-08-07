@@ -8,15 +8,6 @@
     curs 2018/2019, tutor Jordi Fanals Oriol,
     codi amb Arduino IDE 1.8.5,
 
-  Registre:
-   - Versió extrusora: v1
-   - Versió codi (segurament fitxer actual): v2
-
-  Signatures:
-  - 2018,
-    per Albert Garangou Culebras,
-    modificat per últim cop el XX de XXXXXXXX de 2018.
-
     Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
     This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
