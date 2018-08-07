@@ -3,21 +3,30 @@
 ## Com funciona:
 ---
  ## Versió [NUMERO] (Data) - *CodeName*
- ##[No Funcional]
+ ## <No Funcional>
 
  ### Millores
 
-  * [#Num. de cas 1] Descripció
-  * [#Num. de cas 2] Descripció
+  * Descripció
+  * Descripció
       * Contingut
 
  ### Correccions
-  * [#Num. de cas 3] Descripció
+  * Descripció
 
 ### Errors coneguts
- * [#Num. de cas 4] Descripció
+ * Descripció
 
  ### Més informació
- * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.1...master?diff=unified&name=master)
+ * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.1...0.1.1)
 
 ---
+
+## Versió 0.2 (7/8/2018) - L298n Update
+
+### Millores
+  * Added fritzing Project.
+  * Rewrote code in order to work with L298n controller.
+    * Added (same as before) function to do step with calling only the function with internal variables.
+
+[Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.1.1...0.2)
