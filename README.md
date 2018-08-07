@@ -17,7 +17,7 @@ Extrusora de PLA controlada amb Arduino Mega 2560.
 
 ### Instalació
 
-Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora.ino) compila'l a la placa i ja estarà llest!
+Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora.ino), compila'l a la placa i ja estarà llest!
 
 ##  Versions
 
