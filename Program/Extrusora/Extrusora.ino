@@ -32,7 +32,7 @@ int const switchExtrude = 12; //interruptor motor extrusor
 int const switchWind = 13;  //interruptor motor bobina
 int const switchInvertDir = 14; //interruptor invertir direcció
 
-int const fanRelay = 15;  //relé ventiladors
+int const fanRelay = 15;  //relé abilitar ventiladors
 
 //variables temperatures
 int const coldTempOKDegrees = 50; //temperatura freda
