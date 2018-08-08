@@ -36,8 +36,8 @@
 
  ### Millores
   * Edited fritzing project
-   * Added tb6600 and removed old L298n
-   * Added NTC
+    * Added tb6600 and removed old L298n
+    * Added NTC
   * Added doStep() function (easy step function)
   * Added new components
  
