@@ -1,6 +1,6 @@
 /*
   Extrusora de PLA controlada per Arduino Mega 2560.
-  
+
   Projecte:
   - https://github.com/bertugarangou/ExtrusoraPLA
   Circuit:
@@ -10,7 +10,7 @@
     codi amb Arduino IDE 1.8.5,
     Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
     This Font Software is licensed under the SIL Open Font License, Version 1.1.
-    
+
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 /*+++++++++++++Llibreries++++++++++++++*/
@@ -85,7 +85,7 @@ void doStep(int motor, int dir){
           digitalWrite(extruderStep, LOW);
           delay(timeBetweenSteps);
           break;
-          
+
         case 1:
           digitalWrite(extruderDir, HIGH);
           digitalWrite(extruderStep, HIGH);
@@ -105,7 +105,7 @@ void doStep(int motor, int dir){
           digitalWrite(extruderStep, LOW);
           delay(timeBetweenSteps);
           break;
-          
+
         case 1:
           digitalWrite(coilDir, HIGH);
           digitalWrite(coilStep, HIGH);
