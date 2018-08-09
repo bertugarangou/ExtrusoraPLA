@@ -19,10 +19,10 @@
 //Pins components
 int const extruderDir = 2;  //motor extruder step
 int const extruderStep = 3;  //motor extruder canviar dir
-int const extruderEnable = 4; //motor extruder enable/holding o diable
+int const extruderDisable = 4; //motor extruder enable/holding o diable
 int const coilDir = 5; //motor coil step
 int const coilStep = 6;  //motor coil canviar dir
-int const coilEnable = 7; //motor coil enable/holding o disable
+int const coilDisable = 7; //motor coil enable/holding o disable
 
 int const hotTempOKLED = 8; //LED temperatura llesta per extrusió
 int const coldTempOKLED = 9; //LED temperatura llesta per maipulació
@@ -40,8 +40,8 @@ int const hotTempOKDegrees = 200; // temperatura calenta
 int const extremeTemp = 230; //temperatura massa calenta
 int currentTemp = 0; //temperatura actual actualitzada cada certs segons. Comença amb 0 per comprovar que s'actualitza, ja que mai arribarà als 0ºC
 
-int const timeToStopStep = 2;
-int const timeBetweenSteps = 2;
+int const timeToStopStep = 1.5;
+int const timeBetweenSteps = 1.5;
 //booleans per saber si es pot extrudir
 bool check_extrudeByRefrigeration = false;
 bool check_extrudeByTemp = false;
@@ -49,20 +49,25 @@ bool check_extrudeBySwitch = false;
 
 /*++Declaració variables i constants+++*/
 
-/*+++++++++Configuració components+++++++++*/
-void setup() { //Declaració de components a la placa
-  pinMode(coldTempOKLED, OUTPUT); //LED temperatura llesta per maipulació
-  pinMode(hotTempOKLED, OUTPUT);  //LED temperatura llesta per extrusió
-
-}
-/*+++++++++Configuració components+++++++++*/
-
 /*+++++++++++Declaracio funcions+++++++++++*/
 void tempAction(); //funció per dur a terme diverses accions depenent de la temperatura
 void callError(); //funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
 void toggleRefrigeration();
 void doStep();
 /*+++++++++++Declaracio funcions+++++++++++*/
+
+/*+++++++++Configuració components+++++++++*/
+void setup() { //Declaració de components a la placa
+  pinMode(coldTempOKLED, OUTPUT); //LED temperatura llesta per maipulació
+  pinMode(hotTempOKLED, OUTPUT);  //LED temperatura llesta per extrusió
+  pinMode(extruderDir, OUTPUT);
+  pinMode(extruderStep, OUTPUT);
+  pinMode(extruderDisable, OUTPUT);
+  pinMode(coilDir, OUTPUT);
+  pinMode(coilStep, OUTPUT);
+  pinMode(coilDisable, OUTPUT);
+}
+/*+++++++++Configuració components+++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
 void loop() {
