@@ -12,8 +12,6 @@
     This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
 */
-/*+++++++++++++Llibreries++++++++++++++*/
-/*+++++++++++++Llibreries++++++++++++++*/
 
 /*++Declaració variables i constants+++*/
 //Pins components
