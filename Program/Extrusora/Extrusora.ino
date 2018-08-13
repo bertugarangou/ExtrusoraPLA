@@ -58,11 +58,11 @@ int const NTC = A0; //NTC temperatura
 int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla lcd
 
 //variables temperatures
-int const LEDcoldTempMin = 1;   //temperatura freda mínima per manipular (podria omitir-se, però quan és 0 també pot ser degut a un error de lectura)
-int const LEDcoldTempMax = 50;  //temperatura freda màxima per manipular
+int const coldTempMin = 1;   //temperatura freda mínima per manipular (podria omitir-se, però quan és 0 també pot ser degut a un error de lectura)
+int const coldTempMax = 50;  //temperatura freda màxima per manipular
 int const coldTemp = 50; //temperatura freda predeterminada
-int const LEDhotTempMin = 198;  //temperatura calenta mínima per extrudir
-int const LEDhotTempMax = 220;  //temperatura calenta màxima per extrudir
+int const hotTempMin = 198;  //temperatura calenta mínima per extrudir
+int const hotTempMax = 220;  //temperatura calenta màxima per extrudir
 int const hotTemp = 205; //temperatura calenta per extrudir
 
 int const extremeTemp = 225; //temperatura massa calenta
@@ -88,6 +88,12 @@ int errorCode = 0; //default "0"      //codi d'error que llança una funció qua
 bool check_extrudeByRefrigeration = false;  //comprovació per extrudir segons refrigeració
 bool check_extrudeByTemp = false; //comprovació per extrudir segons temperatura
 bool check_extrudeBySwitch = false; //comprovació per extrudir segons interruptor per extrudir
+//booleans per saber si es pot extrudir del ventiladors (fills de check_extrudeByRefrigeration)
+bool check_arduinoFan = false;
+bool check_controllersFans = false;
+bool check_tubeFan = false;
+bool check_filamentFans = false;
+bool check_coilFan = false;
 
 //Pre-configuració de llibreries
 Tasker tasker;
@@ -101,6 +107,8 @@ void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
 void ExtruderSwitches(); //funció per fer passos al motor del extrusor a través dels interruptors (pot substituir doStep() en un futur)
 void WinderSwitches();  //funció per fer passos al motor de la bobina a través dels interruptors (pot substituir doStep() en un futur)
 void heaterSwitch();
+void tempCheck();
+void fansCheck();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
@@ -164,7 +172,27 @@ void loop() { //funció dins "main" que es repeteix en bucle
 
 /*+++++++++++Definició funicons++++++++++++*/
 
+void tempCheck(){
+  if(tempC < hotTempMax && tempC > hotTempMin) {
+    check_extrudeByTemp = true;
+  }
+  else {
+    check_extrudeByTemp = false;
+  }
+}
+
+void fansCheck(){
+  if(check_arduinoFan == true && check_controllersFans == true && check_tubeFan == true && check_filamentFans == true && check_coilFan == true){
+    check_extrudeByRefrigeration = true;
+  }
+  else{
+    check_extrudeByRefrigeration = false;
+  }
+}
+
 void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
+  fansCheck();
+  tempCheck();
   if(check_extrudeByRefrigeration == true && check_extrudeByTemp == true) {
     if(switchExtrude == HIGH && switchExtruderInvert == LOW){
       Serial.println("Motor: Extruder: ON");
@@ -261,11 +289,11 @@ void readTemp(){
 }
 
 void ledAction(){ //funció per encendre els LEDs de temperatura
-  if(tempC <= LEDcoldTempMax && tempC >= LEDcoldTempMin) {
+  if(tempC <= coldTempMax && tempC >= coldTempMin) {
     digitalWrite(coldTempOKLED, HIGH);
     digitalWrite(hotTempOKLED, LOW);
   }
-  else if(tempC >= LEDhotTempMin && tempC <= LEDhotTempMax){
+  else if(tempC >= hotTempMin && tempC <= hotTempMax){
     digitalWrite(hotTempOKLED, HIGH);
     digitalWrite(coldTempOKLED, LOW);
   }
@@ -289,46 +317,64 @@ void ledAction(){ //funció per encendre els LEDs de temperatura
 void fansSwitches(){
   if(switchFanArduino == HIGH){
     digitalWrite(fanRelayArduino, HIGH);
+    check_arduinoFan = true;
     Serial.println("Fan: Arduino: ON");
   }
   else {
     digitalWrite(fanRelayArduino, LOW);
+      check_arduinoFan = false;
       Serial.println("Fan: Arduino: OFF");
   }
   
   if(switchFanControllers == HIGH){
     digitalWrite(fanRelayControllers, HIGH);
+    check_controllersFans = true;
+    
       Serial.println("Fan: Controllers: ON");
   }
   else {
     digitalWrite(fanRelayControllers,LOW);
+    check_controllersFans = false;
+    
       Serial.println("Fan: Controllers: OFF");
   }
 
   if(switchFansFilament == HIGH){
     digitalWrite(fanRelayFilament, HIGH);
+    check_filamentFans = true;
+    
       Serial.println("Fan: Filament: ON");
   }
   else {
     digitalWrite(fanRelayFilament, LOW);
+    check_filamentFans = false;
+    
       Serial.println("Fan: Filament: OFF");
   }
 
   if(switchFanCoil == HIGH){
     digitalWrite(fanRelayWinder, HIGH);
+    check_coilFan = true;
+    
     Serial.println("Fan: Coil: ON");
   }
   else{
     digitalWrite(fanRelayWinder, LOW);
+    check_coilFan = false;
+    
     Serial.println("Fan: Coil: OFF");
   }
 
   if(switchFanTube == HIGH){
     digitalWrite(fanRelayTube, HIGH);
+    check_tubeFan = true;
+    
     Serial.println("Fan: Tube: ON");
   }
   else{
     digitalWrite(fanRelayTube, LOW);
+    check_tubeFan = false;
+    
     Serial.println("Fan: Tube: OFF");
   }
 }
