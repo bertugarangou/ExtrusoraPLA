@@ -45,6 +45,7 @@ This Font Software is licensed under the SIL Open Font License, Version 1.1.
    * *Es pot comercialitzar*
    * *Es pot distribuir d'igual manera i utilitzar lliurament*
    * *S'ha d'atribuir a l'autor*
+   
 Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls.
 
 ## Reconeixaments
