@@ -266,31 +266,39 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
 
 void toggleRefrigeration(){
   if(switchFanArduino == HIGH){
-  digitalWrite(fanRealyArduino, HIGH);
+    digitalWrite(fanRealyArduino, HIGH);
+    Serial.println("Fan: Arduino: ON");
   }
   else {
     digitalWrite(fanRealyArduino, LOW);
+      Serial.println("Fan: Arduino: OFF");
   }
   
   if(switchFanControllers == HIGH){
     digitalWrite(fanRelayControllers, HIGH);
+      Serial.println("Fan: Controllers: ON");
   }
   else {
     digitalWrite(fanRelayControllers,LOW);
+      Serial.println("Fan: Controllers: OFF");
   }
 
   if(switchFansFilament == HIGH){
     digitalWrite(fanRelayFilament, HIGH);
+      Serial.println("Fan: Filament: ON");
   }
   else {
     digitalWrite(fanRelayFilament, LOW);
+      Serial.println("Fan: Filament: OFF");
   }
 
   if(switchFanCoil == HIGH){
     digitalWrite(fanRelayCoil, HIGH);
+    Serial.println("Fan: Coil: ON");
   }
   else{
     digitalWrite(fanRelayCoil, LOW);
+    Serial.println("Fan: Coil: OFF");
   }
 }
 
