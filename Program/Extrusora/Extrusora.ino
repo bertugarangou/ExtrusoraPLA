@@ -32,28 +32,37 @@ int const switchFansFilament = 10; //interruptor habilitar ventiladors filament
 int const switchFanArduino = 11; //interruptor habilitar ventilador placa arduino
 int const switchFanCoil = 12; //interruptor habilitar ventilador bobina
 int const switchFanControllers = 13; //interruptor habilitar refrigeració controladores TB6600
-int const switchHeater = 14;  //interruptor habilitar escalfador
-int const switchExtrude = 15; //interruptor motor extrusora
-int const switchWind = 16;  //interruptor motor bobina 
-int const switchExtruderInvert = 17; //interruptor motor extrusora invertir direcció
-int const switchWinderInvert = 18; //interruptor motor bobina invertir direcció
+int const switchFanTube = 14;
+int const switchHeater = 15;  //interruptor habilitar escalfador
+int const switchExtrude = 16; //interruptor motor extrusora
+int const switchWind = 17;  //interruptor motor bobina 
+int const switchExtruderInvert = 18; //interruptor motor extrusora invertir direcció
+int const switchWinderInvert = 19; //interruptor motor bobina invertir direcció
 
-
-
-int const fanRelayFilament = 19;  //relé abilitar ventiladors filament
-int const fanRealyArduino = 20; //relé abilitar ventilador Arduino
-int const fanRelayControllers = 21; //relé abilitar ventilador controladores TB6600
-int const fanRelayCoil = 22;  //relé abilitar ventilador bobina
+int const fanRelayFilament = 20;  //relé habilitar ventiladors filament
+int const fanRelayArduino = 21; //relé habilitar ventilador Arduino
+int const fanRelayControllers = 22; //relé habilitar ventilador controladores TB6600
+int const fanRelayWinder = 23;  //relé habilitar ventilador bobina
+int const fanRelayTube = 24; //relé resistència per refredar el tub
 
 int const NTC = A0; //NTC temperatura
+
+int const resistorSSRelay = 25;
 
 int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla lcd
 LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
 
 //variables temperatures
-int const coldTempOKDegrees = 50; //temperatura freda
-int const hotTempOKDegrees = 200; // temperatura calenta
-int const extremeTemp = 230; //temperatura massa calenta
+int const LEDcoldTempMin = 1;   //temperatura freda mínima per manipular (podria omitir-se, però quan és 0 també pot ser degut a un error de lectura)
+int const LEDcoldTempMax = 50;  //temperatura freda màxima per manipular
+int const coldTemp = 50; //temperatura freda predeterminada
+int const LEDhotTempMin = 198;  //temperatura calenta mínima per extrudir
+int const LEDhotTempMax = 220;  //temperatura calenta màxima per extrudir
+int const hotTemp = 205; //temperatura calenta per extrudir
+
+int const extremeTemp = 225; //temperatura massa calenta
+
+
 int tempK = 0.0;  //default "0.0"     //temperatura actual en Kelvins
 int tempC = 0.0;  //default "0.0"     //temperatura actual en Centígrafs
 
@@ -77,30 +86,52 @@ bool fail = false;
 /*++Declaració variables i constants+++*/
 
 /*+++++++++++Declaracio funcions+++++++++++*/
-void tempAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
+void tempLEDAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
 void callError(); //funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
 void toggleRefrigeration(); //funció habilitar/deshabilitar refrigeració
-void doStep();  //funció per un pas seleccionant un motor, la direcció i el nombre de passos
 void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
 void ExtruderSwitches(); //funció per fer passos al motor del extrusor a través dels interruptors (pot substituir doStep() en un futur)
 void WinderSwitches();  //funció per fer passos al motor de la bobina a través dels interruptors (pot substituir doStep() en un futur)
+void HeatSIMPLE();
+void heatPID();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
 void setup() { //Declaració de components a la placa
   Serial.begin(9600); //inicia la depuració
-
-  pinMode(coldTempOKLED, OUTPUT); //LED temperatura llesta per maipulació
-  pinMode(hotTempOKLED, OUTPUT);  //LED temperatura llesta per extrusió
   
-  pinMode(extruderDir, OUTPUT); //connexió motor extrusora canvi direcció
-  pinMode(extruderStep, OUTPUT);  //connexió motor extrusora avançar un pas
-  pinMode(extruderDisable, OUTPUT); //conexió motor extrusora deshabilitar
-  pinMode(coilDir, OUTPUT); //connexió motor bobina canvi direcció
-  pinMode(coilStep, OUTPUT);  //connexió motor bobina avançar un pas
-  pinMode(coilDisable, OUTPUT); //connexió motor bobina deshabilitar
+pinMode(extruderDir, OUTPUT);
+pinMode(extruderStep, OUTPUT);
+pinMode(extruderDisable, OUTPUT);
+pinMode(coilDir, OUTPUT);
+pinMode(coilStep, OUTPUT);
+pinMode(coilDisable, OUTPUT);
 
-  pinMode(NTC, INPUT); //sensor NTC temperatura
+pinMode(hotTempOKLED, OUTPUT);
+pinMode(coldTempOKLED, OUTPUT);
+
+pinMode(switchFansFilament, INPUT);
+pinMode(switchFanArduino, INPUT);
+pinMode(switchFanCoil, INPUT);
+pinMode(switchFanControllers, INPUT);
+pinMode(switchFanTube, INPUT);
+
+pinMode(switchHeater, INPUT);
+
+pinMode(switchExtrude, INPUT);
+pinMode(switchWind, INPUT);
+pinMode(switchExtruderInvert, INPUT);
+pinMode(switchWinderInvert, INPUT);
+
+pinMode(fanRelayFilament, OUTPUT);
+pinMode(fanRelayArduino, OUTPUT);
+pinMode(fanRelayControllers, OUTPUT);
+pinMode(fanRelayWinder, OUTPUT);
+pinMode(fanRelayTube, OUTPUT);
+
+pinMode(NTC, INPUT);
+
+pinMode(resistorSSRelay, OUTPUT);
 
 //procediments inicials pantalla
 lcd.clear(); //buidar i esatblir 0,0 el cursor
@@ -116,110 +147,43 @@ void loop() { //funció dins "main" que es repeteix en bucle
 /*++++++++++++++++Processos++++++++++++++++*/
 
 /*+++++++++++Definició funicons++++++++++++*/
-void doStep(int motor, int dir, int steps){
-  switch (motor) {  //Estructura en switch per escollir direcció i motor
-                    //motor 0 = extrusor
-                    //motor 1 = bobina
-                    //direcció 0 = forward
-                    //direcció 1 = reverse
-                    //steps = nombre de passos
-    case 0:
-      switch (dir) {
-        case 0:
-          while(steps != 0){
 
-            
-            Serial.print("Passos restants: ");
-            Serial.println(steps);
-            
-            digitalWrite(extruderStep, HIGH);
-            delay(timeToStopStep);
-            digitalWrite(extruderStep, LOW);
-            --steps;
-            delay(timeBetweenSteps);
-
-            
-          }
-          break;
-
-        case 1:
-          while(steps != 0) {
-
-            Serial.print("Passos restants: ");
-            Serial.println(steps);
-            
-            digitalWrite(extruderDir, HIGH);
-            digitalWrite(extruderStep, HIGH);
-            delay(timeToStopStep);
-            digitalWrite(extruderStep, LOW);
-            digitalWrite(extruderDir, LOW);
-            --steps;
-            delay(timeBetweenSteps);
-          }
-        break;
-      }
-      break;
-
-    case 1:
-      switch (dir) {
-        case 0:
-
-            Serial.print("Passos restants: ");
-            Serial.println(steps);
-            
-            digitalWrite(coilStep, HIGH);
-            delay(timeToStopStep);
-            digitalWrite(extruderStep, LOW);
-            --steps;
-            delay(timeBetweenSteps);
-          break;
-
-        case 1:
-
-            Serial.print("Passos restants: ");
-            Serial.println(steps);
-            
-            digitalWrite(coilDir, HIGH);
-            digitalWrite(coilStep, HIGH);
-            delay(timeToStopStep);
-            digitalWrite(coilStep, LOW);
-            digitalWrite(coilDir, LOW);
-            --steps;
-            delay(timeBetweenSteps);
-          break;
-      }
-      break;
-    }
-}
-
-void ExtruderSwitches(){  //funció per fer passos a través dels interruptors (pot substituir doStep() en un futur)
+void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
   if(switchExtrude == HIGH && switchExtruderInvert == LOW){
+    Serial.println("Motor: Extruder: ON");
     digitalWrite(extruderStep, HIGH);
     delay(timeToStopStep);
     digitalWrite(extruderStep, LOW);
     delay(timeBetweenSteps);
+
   }
   else if(switchExtrude == HIGH && switchExtruderInvert == HIGH){
+    Serial.println("Motor: Extruder: REVERSE");
     digitalWrite(extruderDir, HIGH);
     digitalWrite(extruderStep, HIGH);
     delay(timeToStopStep);
     digitalWrite(extruderStep, LOW);
     digitalWrite(extruderDir, LOW);
     delay(timeBetweenSteps);
+
   }
   else {
+    Serial.println("Motor: Extruder: OFF");
     digitalWrite(extruderDisable, HIGH);
+
   }
 }
 
-void WinderSwitches(){  //funció per fer passos a través dels interruptors (pot substituir doStep() en un futur)
+void WinderSwitches(){  //funció per fer passos a través dels interruptors
   if(switchWind == HIGH && switchWinderInvert == LOW){
+    Serial.println("Motor: WInder: ON");
     digitalWrite(coilStep, HIGH);
     delay(timeToStopStep);
     digitalWrite(coilStep, LOW);
     delay(timeBetweenSteps);
   }
   else if(switchWind == HIGH && switchWinderInvert == HIGH){
+    Serial.println("Motor: Winder: REVERSE");
     digitalWrite(coilDir, HIGH);
     digitalWrite(coilStep, HIGH);
     delay(timeToStopStep);
@@ -228,9 +192,20 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors (po
     delay(timeBetweenSteps);
   }
   else {
+    Serial.println("Motor: Winder: OFF");
     digitalWrite(coilDisable, HIGH);
   }
 }
+
+void heatSIMPLE(){
+if(1 > tempC){
+  digitalWrite(resistorSSRelay, HIGH);
+  }
+  else {
+  digitalWrite(resistorSSRelay, LOW);
+  }
+}
+
 
 void readTemp(){
   if(millis() >= current_time + 2000) {
@@ -252,22 +227,29 @@ void readTemp(){
   }
 }
 
-void TempAction(){ //funció per dur a terme diverses accions depenent de la temperatura
-  if(tempC < coldTempOKDegrees) {
+void TempLEDAction(){ //funció per encendre els LEDs de temperatura
+  if(tempC <= LEDcoldTempMax && tempC >= LEDcoldTempMin) {
     digitalWrite(coldTempOKLED, HIGH);
+    digitalWrite(hotTempOKLED, LOW);
   }
-  else if(tempC >= hotTempOKDegrees){
+  else if(tempC >= LEDhotTempMin && tempC <= LEDhotTempMax){
     digitalWrite(hotTempOKLED, HIGH);
+    digitalWrite(coldTempOKLED, LOW);
   }
   else if(tempC > extremeTemp){
+    digitalWrite(hotTempOKLED, LOW);
+    digitalWrite(coldTempOKLED, LOW);
     callError(1);
   }
   else if(tempC == 0){
+    digitalWrite(hotTempOKLED, LOW);
+    digitalWrite(coldTempOKLED, LOW);
     callError(2);
   }
   else{
     digitalWrite(hotTempOKLED, LOW);
     digitalWrite(coldTempOKLED, LOW);
+
   }
 }
 
@@ -290,6 +272,13 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
     lcd.print("Carai! 1");
     lcd.setCursor(1,0);
     lcd.print("");
+    while(tempC > coldTemp){
+      digitalWrite(fanRelayArduino, HIGH);
+      digitalWrite(fanRelayControllers, HIGH);
+      digitalWrite(fanRelayTube, HIGH);
+      digitalWrite(fanRelayFilament, HIGH);
+      digitalWrite(fanRelayWinder, HIGH);
+    }
       break;
 
       
@@ -311,11 +300,11 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
 
 void toggleRefrigeration(){
   if(switchFanArduino == HIGH){
-    digitalWrite(fanRealyArduino, HIGH);
+    digitalWrite(fanRelayArduino, HIGH);
     Serial.println("Fan: Arduino: ON");
   }
   else {
-    digitalWrite(fanRealyArduino, LOW);
+    digitalWrite(fanRelayArduino, LOW);
       Serial.println("Fan: Arduino: OFF");
   }
   
@@ -338,13 +327,21 @@ void toggleRefrigeration(){
   }
 
   if(switchFanCoil == HIGH){
-    digitalWrite(fanRelayCoil, HIGH);
+    digitalWrite(fanRelayWinder, HIGH);
     Serial.println("Fan: Coil: ON");
   }
   else{
-    digitalWrite(fanRelayCoil, LOW);
+    digitalWrite(fanRelayWinder, LOW);
     Serial.println("Fan: Coil: OFF");
   }
-}
 
+  if(switchFanTube == HIGH){
+    digitalWrite(fanRelayTube, HIGH);
+    Serial.println("Fan: Tube: ON");
+  }
+  else{
+    digitalWrite(fanRelayTube, LOW);
+    Serial.println("Fan: Tube: OFF");
+  }
+}
 /*+++++++++++Definició funicons++++++++++++*/
