@@ -27,14 +27,18 @@ int const coilDisable = 7; //motor coil enable/holding o disable
 
 int const hotTempOKLED = 8; //LED temperatura llesta per extrusió
 int const coldTempOKLED = 9; //LED temperatura llesta per maipulació
+
 int const switchFansFilament = 10; //interruptor habilitar ventiladors filament
-int const switchFanArduino = 16; //interruptor habilitar ventilador placa arduino
-int const switchFanCoil = 17; //interruptor habilitar ventilador bobina
-int const switchFanControllers = 18; //interruptor habilitar refrigeració controladores TB6600
-int const switchHeater = 11;  //interruptor habilitar escalfador
-int const switchExtrude = 12; //interruptor motor extrusor
-int const switchWind = 14;  //interruptor motor bobina
-int const switchInvertDir = 15; //interruptor invertir direcció
+int const switchFanArduino = 11; //interruptor habilitar ventilador placa arduino
+int const switchFanCoil = 12; //interruptor habilitar ventilador bobina
+int const switchFanControllers = 13; //interruptor habilitar refrigeració controladores TB6600
+int const switchHeater = 14;  //interruptor habilitar escalfador
+int const switchExtrude = 15; //interruptor motor extrusora
+int const switchWind = 16;  //interruptor motor bobina 
+int const switchExtruderInvert = 17; //interruptor motor extrusora invertir direcció
+int const switchWinderInvert = 18; //interruptor motor bobina invertir direcció
+
+
 
 int const fanRelayFilament = 19;  //relé abilitar ventiladors filament
 int const fanRealyArduino = 20; //relé abilitar ventilador Arduino
@@ -76,8 +80,10 @@ bool fail = false;
 void tempAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
 void callError(); //funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
 void toggleRefrigeration(); //funció habilitar/deshabilitar refrigeració
-void doStep();  //funció per per un pas seleccionant un motor, la direcció i el nombre de passos
+void doStep();  //funció per un pas seleccionant un motor, la direcció i el nombre de passos
 void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
+void ExtruderSwitches(); //funció per fer passos al motor del extrusor a través dels interruptors (pot substituir doStep() en un futur)
+void WinderSwitches();  //funció per fer passos al motor de la bobina a través dels interruptors (pot substituir doStep() en un futur)
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
@@ -121,7 +127,7 @@ void doStep(int motor, int dir, int steps){
       switch (dir) {
         case 0:
           while(steps != 0){
-            --steps;
+
             
             Serial.print("Passos restants: ");
             Serial.println(steps);
@@ -129,6 +135,7 @@ void doStep(int motor, int dir, int steps){
             digitalWrite(extruderStep, HIGH);
             delay(timeToStopStep);
             digitalWrite(extruderStep, LOW);
+            --steps;
             delay(timeBetweenSteps);
 
             
@@ -183,7 +190,46 @@ void doStep(int motor, int dir, int steps){
       }
       break;
     }
-    fail = false;
+}
+
+void ExtruderSwitches(){  //funció per fer passos a través dels interruptors (pot substituir doStep() en un futur)
+  if(switchExtrude == HIGH && switchExtruderInvert == LOW){
+    digitalWrite(extruderStep, HIGH);
+    delay(timeToStopStep);
+    digitalWrite(extruderStep, LOW);
+    delay(timeBetweenSteps);
+  }
+  else if(switchExtrude == HIGH && switchExtruderInvert == HIGH){
+    digitalWrite(extruderDir, HIGH);
+    digitalWrite(extruderStep, HIGH);
+    delay(timeToStopStep);
+    digitalWrite(extruderStep, LOW);
+    digitalWrite(extruderDir, LOW);
+    delay(timeBetweenSteps);
+  }
+  else {
+    digitalWrite(extruderDisable, HIGH);
+  }
+}
+
+void WinderSwitches(){  //funció per fer passos a través dels interruptors (pot substituir doStep() en un futur)
+  if(switchWind == HIGH && switchWinderInvert == LOW){
+    digitalWrite(coilStep, HIGH);
+    delay(timeToStopStep);
+    digitalWrite(coilStep, LOW);
+    delay(timeBetweenSteps);
+  }
+  else if(switchWind == HIGH && switchWinderInvert == HIGH){
+    digitalWrite(coilDir, HIGH);
+    digitalWrite(coilStep, HIGH);
+    delay(timeToStopStep);
+    digitalWrite(coilStep, LOW);
+    digitalWrite(coilDir, LOW);
+    delay(timeBetweenSteps);
+  }
+  else {
+    digitalWrite(coilDisable, HIGH);
+  }
 }
 
 void readTemp(){
@@ -256,12 +302,11 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
     lcd.print("");
     
       break;
-
-      
   }
     lcd.noBlink();
     Serial.print("Yeep! T'has estimbat! Codi: ");
     Serial.println(errorCode);
+    fail = false;
 }
 
 void toggleRefrigeration(){
