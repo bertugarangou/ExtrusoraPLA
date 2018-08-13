@@ -1,3 +1,5 @@
+
+
 /*
   Extrusora de PLA controlada per Arduino Mega 2560.
 
@@ -14,9 +16,13 @@
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <LiquidCrystal.h>
+
+#define TASKER_MAX_TASKS 20
+#include <Tasker.h>
 /*+++++++++++++Llibreries++++++++++++++*/
 
 /*++Declaració variables i constants+++*/
+
 //Pins components
 int const extruderDir = 2;  //motor extruder step
 int const extruderStep = 3;  //motor extruder canviar dir
@@ -33,7 +39,7 @@ int const switchFanArduino = 11; //interruptor habilitar ventilador placa arduin
 int const switchFanCoil = 12; //interruptor habilitar ventilador bobina
 int const switchFanControllers = 13; //interruptor habilitar refrigeració controladores TB6600
 int const switchFanTube = 14; //interruptor habilitar refrigeració del tub
-int const switchHeater = 15;  //interruptor habilitar escalfador
+int const switchResistor = 15;  //interruptor habilitar escalfador
 int const switchExtrude = 16; //interruptor motor extrusora
 int const switchWind = 17;  //interruptor motor bobina 
 int const switchExtruderInvert = 18; //interruptor motor extrusora invertir direcció
@@ -50,7 +56,6 @@ int const resistorSSRelay = 25; //relé d'estat sòlid de la resistència del tu
 int const NTC = A0; //NTC temperatura
 
 int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla lcd
-LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
 
 //variables temperatures
 int const LEDcoldTempMin = 1;   //temperatura freda mínima per manipular (podria omitir-se, però quan és 0 també pot ser degut a un error de lectura)
@@ -72,7 +77,10 @@ float rntc = 0.0; //default "0.0"     //pel calcul de raw a tº de la NTC
 int const timeToStopStep = 1.5; //default "1.5"     //temps entre activar pas i desactivar-lo
 int const timeBetweenSteps = 1.5; //default "1.5"     //temps entre dos passos
 
-unsigned long current_time = 0; //default "0"     //temps actual obtingut de "millis()"
+unsigned long currentTimeReadTemp = 0; //default "0"     //temps actual obtingut de "millis()"
+unsigned long currentTimeHeater = 0;
+
+int tempVariation;
 
 int errorCode = 0; //default "0"      //codi d'error que llança una funció quan algo no funciona degudament
 
@@ -81,19 +89,18 @@ bool check_extrudeByRefrigeration = false;  //comprovació per extrudir segons r
 bool check_extrudeByTemp = false; //comprovació per extrudir segons temperatura
 bool check_extrudeBySwitch = false; //comprovació per extrudir segons interruptor per extrudir
 
-//boolean per saber si ha saltat un error i parar tots els processos
-bool fail = false;
+//Pre-configuració de llibreries
+Tasker tasker;
+LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
 /*++Declaració variables i constants+++*/
 
 /*+++++++++++Declaracio funcions+++++++++++*/
-void tempLEDAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
-void callError(); //funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
-void toggleRefrigeration(); //funció habilitar/deshabilitar refrigeració
+void ledAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
+void fansSwitches(); //funció habilitar/deshabilitar refrigeració
 void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
 void ExtruderSwitches(); //funció per fer passos al motor del extrusor a través dels interruptors (pot substituir doStep() en un futur)
 void WinderSwitches();  //funció per fer passos al motor de la bobina a través dels interruptors (pot substituir doStep() en un futur)
-void HeatSIMPLE();
-void heatPID();
+void heaterSwitch();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
@@ -116,7 +123,7 @@ pinMode(switchFanCoil, INPUT);
 pinMode(switchFanControllers, INPUT);
 pinMode(switchFanTube, INPUT);
 
-pinMode(switchHeater, INPUT);
+pinMode(switchResistor, INPUT);
 
 pinMode(switchExtrude, INPUT);
 pinMode(switchWind, INPUT);
@@ -135,42 +142,52 @@ pinMode(resistorSSRelay, OUTPUT);
 
 //procediments inicials pantalla
 lcd.clear(); //buidar i esatblir 0,0 el cursor
+
+//tasques independents
+tasker.setInterval(readTemp, 2000);
+tasker.setInterval(ledAction, 2500);
 }
 /*+++++++++Configuració components+++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
 void loop() { //funció dins "main" que es repeteix en bucle
-  while(fail =! true) {
-    
+  while(errorCode == 0){
+  tasker.setTimeout(ExtruderSwitches, 1);
+  tasker.setTimeout(WinderSwitches, 1);
+  tasker.setTimeout(WinderSwitches, 1);
+  tasker.setTimeout(heaterSwitch, 1);
+  tasker.loop();
   }
+  //posar aquí sota els procediments per quan hi hagi un error (errorCode !=0)
 }
 /*++++++++++++++++Processos++++++++++++++++*/
 
 /*+++++++++++Definició funicons++++++++++++*/
 
 void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
-  if(switchExtrude == HIGH && switchExtruderInvert == LOW){
-    Serial.println("Motor: Extruder: ON");
-    digitalWrite(extruderStep, HIGH);
-    delay(timeToStopStep);
-    digitalWrite(extruderStep, LOW);
-    delay(timeBetweenSteps);
+  if(check_extrudeByRefrigeration == true && check_extrudeByTemp == true) {
+    if(switchExtrude == HIGH && switchExtruderInvert == LOW){
+      Serial.println("Motor: Extruder: ON");
+      digitalWrite(extruderStep, HIGH);
+      delay(timeToStopStep);
+      digitalWrite(extruderStep, LOW);
+      delay(timeBetweenSteps);
 
-  }
-  else if(switchExtrude == HIGH && switchExtruderInvert == HIGH){
-    Serial.println("Motor: Extruder: REVERSE");
-    digitalWrite(extruderDir, HIGH);
-    digitalWrite(extruderStep, HIGH);
-    delay(timeToStopStep);
-    digitalWrite(extruderStep, LOW);
-    digitalWrite(extruderDir, LOW);
-    delay(timeBetweenSteps);
+    }
+    else if(switchExtrude == HIGH && switchExtruderInvert == HIGH){
+      Serial.println("Motor: Extruder: REVERSE");
+      digitalWrite(extruderDir, HIGH);
+      digitalWrite(extruderStep, HIGH);
+      delay(timeToStopStep);
+      digitalWrite(extruderStep, LOW);
+      digitalWrite(extruderDir, LOW);
+      delay(timeBetweenSteps);
 
-  }
-  else {
-    Serial.println("Motor: Extruder: OFF");
-    digitalWrite(extruderDisable, HIGH);
-
+    }
+    else {
+      Serial.println("Motor: Extruder: OFF");
+      digitalWrite(extruderDisable, HIGH);
+    }
   }
 }
 
@@ -197,20 +214,37 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
   }
 }
 
-void heatSIMPLE(){
-if(1 > tempC){
-  digitalWrite(resistorSSRelay, HIGH);
+
+void heaterSwitch(){
+  if(check_extrudeByTemp == true && check_extrudeByRefrigeration == true){
+    if(switchResistor == HIGH){
+  
+      tempVariation = hotTemp - tempC;
+      while(tempVariation > 5){ //de 50 a 199
+        digitalWrite(resistorSSRelay, HIGH);
+      }
+  
+      while(tempVariation <= 5 && tempVariation > 0){ //de 200 a 204
+        currentTimeHeater = millis();
+        do{
+          digitalWrite(resistorSSRelay, HIGH);
+        } while(millis() < currentTimeHeater + tempVariation);
+        digitalWrite(resistorSSRelay, LOW);
+      }
+  
+      digitalWrite(resistorSSRelay, LOW); //205 o més
   }
-  else {
-  digitalWrite(resistorSSRelay, LOW);
+}
+  
+  else{
+    digitalWrite(resistorSSRelay, LOW);
   }
 }
 
-
 void readTemp(){
-  if(millis() >= current_time + 2000) {
+  //if(millis() >= currentTimeReadTemp + 2000) {
   VOut=(5.0 / 1023)*( analogRead(0) );
-  rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0) )))-1);
+  rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0))))-1);
   tempK = 3950.0/(log(rntc/100000.0)+(3950/298.0)); 
   tempC = tempK - 272.15;
 
@@ -222,12 +256,11 @@ void readTemp(){
   Serial.print(tempC);
   Serial.println("ºC");
 
-  current_time = millis();
-  
-  }
+  //currentTimeReadTemp = millis();
+  //}
 }
 
-void TempLEDAction(){ //funció per encendre els LEDs de temperatura
+void ledAction(){ //funció per encendre els LEDs de temperatura
   if(tempC <= LEDcoldTempMax && tempC >= LEDcoldTempMin) {
     digitalWrite(coldTempOKLED, HIGH);
     digitalWrite(hotTempOKLED, LOW);
@@ -239,12 +272,12 @@ void TempLEDAction(){ //funció per encendre els LEDs de temperatura
   else if(tempC > extremeTemp){
     digitalWrite(hotTempOKLED, LOW);
     digitalWrite(coldTempOKLED, LOW);
-    callError(1);
+    errorCode = 1;
   }
   else if(tempC == 0){
     digitalWrite(hotTempOKLED, LOW);
     digitalWrite(coldTempOKLED, LOW);
-    callError(2);
+    errorCode = 2;
   }
   else{
     digitalWrite(hotTempOKLED, LOW);
@@ -253,52 +286,7 @@ void TempLEDAction(){ //funció per encendre els LEDs de temperatura
   }
 }
 
-void callError(int errorCode){//funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
-  fail = true; //estableix que hi ha un error
-  switch (errorCode){ //switch per escollir què fer depen de cada errorCode
-    case(0):  //cas 0: sense missatge
-    lcd.clear();
-    lcd.setCursor(0,5);
-    lcd.blink();
-    lcd.print("ERROR ??");
-    
-      break;
-
-      
-    case(1):  //cas 1: temp. massa alta
-    lcd.clear();
-    lcd.setCursor(0,5);
-    lcd.blink();
-    lcd.print("Carai! 1");
-    lcd.setCursor(1,0);
-    lcd.print("");
-    while(tempC > coldTemp){
-      digitalWrite(fanRelayArduino, HIGH);
-      digitalWrite(fanRelayControllers, HIGH);
-      digitalWrite(fanRelayTube, HIGH);
-      digitalWrite(fanRelayFilament, HIGH);
-      digitalWrite(fanRelayWinder, HIGH);
-    }
-      break;
-
-      
-    case(2):  //cas 2: temperatura és igual a "res", ergo no s'està llegint el sensor NTC, no respon la funció o hem arribat a la temp. de 0 absolut (0K, -273.15°C)...
-    lcd.clear();
-    lcd.setCursor(0,1);
-    lcd.blink();
-    lcd.print("Vatua l’olla! 2");
-    lcd.setCursor(1,0);
-    lcd.print("");
-    
-      break;
-  }
-    lcd.noBlink();
-    Serial.print("Yeep! T'has estimbat! Codi: ");
-    Serial.println(errorCode);
-    fail = false;
-}
-
-void toggleRefrigeration(){
+void fansSwitches(){
   if(switchFanArduino == HIGH){
     digitalWrite(fanRelayArduino, HIGH);
     Serial.println("Fan: Arduino: ON");
