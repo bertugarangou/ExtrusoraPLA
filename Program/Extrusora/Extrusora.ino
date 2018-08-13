@@ -151,7 +151,7 @@ pinMode(resistorSSRelay, OUTPUT);
 //procediments inicials pantalla
 lcd.clear(); //buidar i esatblir 0,0 el cursor
 
-//tasques independents
+//tasques periòdiques
 tasker.setInterval(readTemp, 2000);
 tasker.setInterval(ledAction, 2500);
 }
@@ -162,8 +162,8 @@ void loop() { //funció dins "main" que es repeteix en bucle
   while(errorCode == 0){
   tasker.setTimeout(ExtruderSwitches, 1);
   tasker.setTimeout(WinderSwitches, 1);
-  tasker.setTimeout(WinderSwitches, 1);
   tasker.setTimeout(heaterSwitch, 1);
+  tasker.setTimeout(fansSwitches, 1);
   tasker.loop();
   }
   //posar aquí sota els procediments per quan hi hagi un error (errorCode !=0)
