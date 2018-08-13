@@ -244,6 +244,8 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
 
 
 void heaterSwitch(){
+  tempCheck();
+  fansCheck();
   if(check_extrudeByTemp == true && check_extrudeByRefrigeration == true){
     if(switchResistor == HIGH){
   
