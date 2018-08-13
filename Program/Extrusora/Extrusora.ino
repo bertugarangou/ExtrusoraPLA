@@ -13,6 +13,7 @@
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
+#include <LiquidCrystal.h>
 /*+++++++++++++Llibreries++++++++++++++*/
 
 /*++Declaració variables i constants+++*/
@@ -29,31 +30,40 @@ int const coldTempOKLED = 9; //LED temperatura llesta per maipulació
 int const switchFan = 10; //interruptor habilitar ventiladors
 int const switchHeater = 11;  //interruptor habilitar escalfador
 int const switchExtrude = 12; //interruptor motor extrusor
-int const switchWind = 13;  //interruptor motor bobina
-int const switchInvertDir = 14; //interruptor invertir direcció
+int const switchWind = 14;  //interruptor motor bobina
+int const switchInvertDir = 15; //interruptor invertir direcció
 
-int const fanRelay = 15;  //relé abilitar ventiladors
+int const fanRelay = 16;  //relé abilitar ventiladors
 
 int const NTC = A0;
+
+int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;
+LiquidCrystal lcd(RS, E, d4, d5, d6, d7);
+
 //variables temperatures
 int const coldTempOKDegrees = 50; //temperatura freda
 int const hotTempOKDegrees = 200; // temperatura calenta
 int const extremeTemp = 230; //temperatura massa calenta
-int tempK = 0.0;
-int tempC = 0.0;
+int tempK = 0.0;  //default "0.0"
+int tempC = 0.0;  //default "0.0"
 
-float VOut = 0.0;
-float rntc = 0.0;
+float VOut = 0.0; //default "0.0"
+float rntc = 0.0; //default "0.0"
 
-int const timeToStopStep = 1.5;
-int const timeBetweenSteps = 1.5;
+int const timeToStopStep = 1.5; //default "1.5"
+int const timeBetweenSteps = 1.5; //default "1.5"
 
-unsigned long current_time = 0;
+unsigned long current_time = 0; //default "0"
+
+int errorCode = 0; //default "0"
 
 //booleans per saber si es pot extrudir
 bool check_extrudeByRefrigeration = false;
 bool check_extrudeByTemp = false;
 bool check_extrudeBySwitch = false;
+
+//boolean per saber si ha saltat un error i parar tots els processos
+bool fail = false;
 
 /*++Declaració variables i constants+++*/
 
@@ -69,8 +79,6 @@ void readTemp();
 void setup() { //Declaració de components a la placa
   Serial.begin(9600);
 
-
-  
   pinMode(coldTempOKLED, OUTPUT); //LED temperatura llesta per maipulació
   pinMode(hotTempOKLED, OUTPUT);  //LED temperatura llesta per extrusió
   
@@ -82,14 +90,16 @@ void setup() { //Declaració de components a la placa
   pinMode(coilDisable, OUTPUT);
 
   pinMode(NTC, INPUT);
+
+//procediments inicials pantalla
+lcd.clear();
 }
 /*+++++++++Configuració components+++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
 void loop() {
-  readTemp();
-  Serial.println("No read");
-
+  while(fail =! true) {
+}
 }
 /*++++++++++++++++Processos++++++++++++++++*/
 
@@ -205,18 +215,37 @@ void TempAction(){ //funció per dur a terme diverses accions depenent de la tem
 }
 
 void callError(int errorCode){//funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
-  switch (errorCode){
-    case(0):
+  fail = true; //estableix que hi ha un error
+  switch (errorCode){ //switch per escollir què fer depen de cada errorCode
+    case(0):  //cas 0: sense missatge
+    lcd.clear();
+    lcd.setCursor(0,5);
+    lcd.blink();
+    lcd.print("ERROR ??");
     
       break;
+      lcd.noBlink();
       
-    case(1):
-    
+    case(1):  //cas 1: temp. massa alta
+    lcd.clear();
+    lcd.setCursor(0,5);
+    lcd.blink();
+    lcd.print("Carai! 1");
+    lcd.setCursor(1,0);
+    lcd.print("");
       break;
+      lcd.noBlink();
       
-    case(2):
+    case(2):  //cas 2: temperatura és igual a "res", ergo no s'està llegint el sensor NTC, no respon la funció o hem arribat a la temp. de 0 absolut (0K, -273.15°C)...
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.blink();
+    lcd.print("Vatua l’olla! 2");
+    lcd.setCursor(1,0);
+    lcd.print("");
     
       break;
+      lcd.noBlink();
       
   }
   
