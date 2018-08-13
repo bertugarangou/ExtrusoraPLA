@@ -32,7 +32,7 @@ int const switchFansFilament = 10; //interruptor habilitar ventiladors filament
 int const switchFanArduino = 11; //interruptor habilitar ventilador placa arduino
 int const switchFanCoil = 12; //interruptor habilitar ventilador bobina
 int const switchFanControllers = 13; //interruptor habilitar refrigeració controladores TB6600
-int const switchFanTube = 14;
+int const switchFanTube = 14; //interruptor habilitar refrigeració del tub
 int const switchHeater = 15;  //interruptor habilitar escalfador
 int const switchExtrude = 16; //interruptor motor extrusora
 int const switchWind = 17;  //interruptor motor bobina 
@@ -45,9 +45,9 @@ int const fanRelayControllers = 22; //relé habilitar ventilador controladores T
 int const fanRelayWinder = 23;  //relé habilitar ventilador bobina
 int const fanRelayTube = 24; //relé resistència per refredar el tub
 
-int const NTC = A0; //NTC temperatura
+int const resistorSSRelay = 25; //relé d'estat sòlid de la resistència del tub
 
-int const resistorSSRelay = 25;
+int const NTC = A0; //NTC temperatura
 
 int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla lcd
 LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
