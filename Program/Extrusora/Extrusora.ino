@@ -27,79 +27,85 @@ int const coilDisable = 7; //motor coil enable/holding o disable
 
 int const hotTempOKLED = 8; //LED temperatura llesta per extrusió
 int const coldTempOKLED = 9; //LED temperatura llesta per maipulació
-int const switchFan = 10; //interruptor habilitar ventiladors
+int const switchFansFilament = 10; //interruptor habilitar ventiladors filament
+int const switchFanArduino = 16; //interruptor habilitar ventilador placa arduino
+int const switchFanCoil = 17; //interruptor habilitar ventilador bobina
+int const switchFanControllers = 18; //interruptor habilitar refrigeració controladores TB6600
 int const switchHeater = 11;  //interruptor habilitar escalfador
 int const switchExtrude = 12; //interruptor motor extrusor
 int const switchWind = 14;  //interruptor motor bobina
 int const switchInvertDir = 15; //interruptor invertir direcció
 
-int const fanRelay = 16;  //relé abilitar ventiladors
+int const fanRelayFilament = 19;  //relé abilitar ventiladors filament
+int const fanRealyArduino = 20; //relé abilitar ventilador Arduino
+int const fanRelayControllers = 21; //relé abilitar ventilador controladores TB6600
+int const fanRelayCoil = 22;  //relé abilitar ventilador bobina
 
-int const NTC = A0;
+int const NTC = A0; //NTC temperatura
 
-int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;
-LiquidCrystal lcd(RS, E, d4, d5, d6, d7);
+int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla lcd
+LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
 
 //variables temperatures
 int const coldTempOKDegrees = 50; //temperatura freda
 int const hotTempOKDegrees = 200; // temperatura calenta
 int const extremeTemp = 230; //temperatura massa calenta
-int tempK = 0.0;  //default "0.0"
-int tempC = 0.0;  //default "0.0"
+int tempK = 0.0;  //default "0.0"     //temperatura actual en Kelvins
+int tempC = 0.0;  //default "0.0"     //temperatura actual en Centígrafs
 
-float VOut = 0.0; //default "0.0"
-float rntc = 0.0; //default "0.0"
+float VOut = 0.0; //default "0.0"     //pel calcul de raw a tº de la NTC
+float rntc = 0.0; //default "0.0"     //pel calcul de raw a tº de la NTC
 
-int const timeToStopStep = 1.5; //default "1.5"
-int const timeBetweenSteps = 1.5; //default "1.5"
+int const timeToStopStep = 1.5; //default "1.5"     //temps entre activar pas i desactivar-lo
+int const timeBetweenSteps = 1.5; //default "1.5"     //temps entre dos passos
 
-unsigned long current_time = 0; //default "0"
+unsigned long current_time = 0; //default "0"     //temps actual obtingut de "millis()"
 
-int errorCode = 0; //default "0"
+int errorCode = 0; //default "0"      //codi d'error que llança una funció quan algo no funciona degudament
 
 //booleans per saber si es pot extrudir
-bool check_extrudeByRefrigeration = false;
-bool check_extrudeByTemp = false;
-bool check_extrudeBySwitch = false;
+bool check_extrudeByRefrigeration = false;  //comprovació per extrudir segons refrigeració
+bool check_extrudeByTemp = false; //comprovació per extrudir segons temperatura
+bool check_extrudeBySwitch = false; //comprovació per extrudir segons interruptor per extrudir
 
 //boolean per saber si ha saltat un error i parar tots els processos
 bool fail = false;
-
 /*++Declaració variables i constants+++*/
 
 /*+++++++++++Declaracio funcions+++++++++++*/
-void tempAction(); //funció per dur a terme diverses accions depenent de la temperatura
+void tempAction(); //funció per dur a terme diverses accions depenent de la temperatura actual
 void callError(); //funció per escollir un missatge d'error i certes accions al respecte quan es cridi amb un codi d'error
-void toggleRefrigeration();
-void doStep();
-void readTemp();
+void toggleRefrigeration(); //funció habilitar/deshabilitar refrigeració
+void doStep();  //funció per per un pas seleccionant un motor, la direcció i el nombre de passos
+void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
 void setup() { //Declaració de components a la placa
-  Serial.begin(9600);
+  Serial.begin(9600); //inicia la depuració
 
   pinMode(coldTempOKLED, OUTPUT); //LED temperatura llesta per maipulació
   pinMode(hotTempOKLED, OUTPUT);  //LED temperatura llesta per extrusió
   
-  pinMode(extruderDir, OUTPUT);
-  pinMode(extruderStep, OUTPUT);
-  pinMode(extruderDisable, OUTPUT);
-  pinMode(coilDir, OUTPUT);
-  pinMode(coilStep, OUTPUT);
-  pinMode(coilDisable, OUTPUT);
+  pinMode(extruderDir, OUTPUT); //connexió motor extrusora canvi direcció
+  pinMode(extruderStep, OUTPUT);  //connexió motor extrusora avançar un pas
+  pinMode(extruderDisable, OUTPUT); //conexió motor extrusora deshabilitar
+  pinMode(coilDir, OUTPUT); //connexió motor bobina canvi direcció
+  pinMode(coilStep, OUTPUT);  //connexió motor bobina avançar un pas
+  pinMode(coilDisable, OUTPUT); //connexió motor bobina deshabilitar
 
-  pinMode(NTC, INPUT);
+  pinMode(NTC, INPUT); //sensor NTC temperatura
 
 //procediments inicials pantalla
-lcd.clear();
+lcd.clear(); //buidar i esatblir 0,0 el cursor
 }
 /*+++++++++Configuració components+++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
-void loop() {
+void loop() { //funció dins "main" que es repeteix en bucle
   while(fail =! true) {
-}
+    
+  }
 }
 /*++++++++++++++++Processos++++++++++++++++*/
 
@@ -177,6 +183,7 @@ void doStep(int motor, int dir, int steps){
       }
       break;
     }
+    fail = false;
 }
 
 void readTemp(){
@@ -185,6 +192,10 @@ void readTemp(){
   rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0) )))-1);
   tempK = 3950.0/(log(rntc/100000.0)+(3950/298.0)); 
   tempC = tempK - 272.15;
+
+  lcd.setCursor(0,0);
+  lcd.print(tempC);
+  lcd.print("ºC");
   
   Serial.print("temp.: ");
   Serial.print(tempC);
@@ -224,7 +235,7 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
     lcd.print("ERROR ??");
     
       break;
-      lcd.noBlink();
+
       
     case(1):  //cas 1: temp. massa alta
     lcd.clear();
@@ -234,7 +245,7 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
     lcd.setCursor(1,0);
     lcd.print("");
       break;
-      lcd.noBlink();
+
       
     case(2):  //cas 2: temperatura és igual a "res", ergo no s'està llegint el sensor NTC, no respon la funció o hem arribat a la temp. de 0 absolut (0K, -273.15°C)...
     lcd.clear();
@@ -245,26 +256,41 @@ void callError(int errorCode){//funció per escollir un missatge d'error i certe
     lcd.print("");
     
       break;
-      lcd.noBlink();
+
       
   }
-  
+    lcd.noBlink();
     Serial.print("Yeep! T'has estimbat! Codi: ");
     Serial.println(errorCode);
 }
 
 void toggleRefrigeration(){
-  if(digitalRead(switchFan) == HIGH){
-    digitalWrite(fanRelay, HIGH);
-    Serial.println("Fans: ON");
-    check_extrudeByRefrigeration = true;
-    Serial.println("check_extruderByRefrigeration: TRUE");
+  if(switchFanArduino == HIGH){
+  digitalWrite(fanRealyArduino, HIGH);
   }
   else {
-    digitalWrite(fanRelay, LOW);
-    Serial.println("Fans: OFF");
-    check_extrudeByRefrigeration = false;
-    Serial.println("check_extruderByRefrigeration: FALSE");
+    digitalWrite(fanRealyArduino, LOW);
+  }
+  
+  if(switchFanControllers == HIGH){
+    digitalWrite(fanRelayControllers, HIGH);
+  }
+  else {
+    digitalWrite(fanRelayControllers,LOW);
+  }
+
+  if(switchFansFilament == HIGH){
+    digitalWrite(fanRelayFilament, HIGH);
+  }
+  else {
+    digitalWrite(fanRelayFilament, LOW);
+  }
+
+  if(switchFanCoil == HIGH){
+    digitalWrite(fanRelayCoil, HIGH);
+  }
+  else{
+    digitalWrite(fanRelayCoil, LOW);
   }
 }
 
