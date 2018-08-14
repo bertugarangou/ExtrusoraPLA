@@ -36,21 +36,21 @@ int const coldTempOKLED = 9; //LED temperatura llesta per maipulació
 int const switchFansFilament = 10; //interruptor habilitar ventiladors filament
 int const switchFanArduino = 11; //interruptor habilitar ventilador placa arduino
 int const switchFanCoil = 12; //interruptor habilitar ventilador bobina
-int const switchFanControllers = 13; //interruptor habilitar refrigeració controladores TB6600
-int const switchFanTube = 14; //interruptor habilitar refrigeració del tub
-int const switchResistor = 15;  //interruptor habilitar escalfador
-int const switchExtrude = 16; //interruptor motor extrusora
-int const switchWind = 17;  //interruptor motor bobina 
-int const switchExtruderInvert = 18; //interruptor motor extrusora invertir direcció
-int const switchWinderInvert = 19; //interruptor motor bobina invertir direcció
+int const switchFanControllers = 14; //interruptor habilitar refrigeració controladores TB6600
+int const switchFanTube = 15; //interruptor habilitar refrigeració del tub
+int const switchResistor = 16;  //interruptor habilitar escalfador
+int const switchExtrude = 17; //interruptor motor extrusora
+int const switchWind = 18;  //interruptor motor bobina 
+int const switchExtruderInvert = 19; //interruptor motor extrusora invertir direcció
+int const switchWinderInvert = 20; //interruptor motor bobina invertir direcció
 
-int const fanRelayFilament = 20;  //relé habilitar ventiladors filament
-int const fanRelayArduino = 21; //relé habilitar ventilador Arduino
-int const fanRelayControllers = 22; //relé habilitar ventilador controladores TB6600
-int const fanRelayWinder = 23;  //relé habilitar ventilador bobina
-int const fanRelayTube = 24; //relé resistència per refredar el tub
+int const fanRelayFilament = 21;  //relé habilitar ventiladors filament
+int const fanRelayArduino = 22; //relé habilitar ventilador Arduino
+int const fanRelayControllers = 23; //relé habilitar ventilador controladores TB6600
+int const fanRelayWinder = 24;  //relé habilitar ventilador bobina
+int const fanRelayTube = 25; //relé resistència per refredar el tub
 
-int const resistorSSRelay = 25; //relé d'estat sòlid de la resistència del tub
+int const resistorSSRelay = 26; //relé d'estat sòlid de la resistència del tub
 
 int const NTC = A0; //NTC temperatura
 
