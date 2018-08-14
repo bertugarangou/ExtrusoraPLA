@@ -94,6 +94,9 @@ bool check_tubeFan = false; //comprova si el ventilador del tub està operatiu
 bool check_filamentFans = false;  //comprova si els ventiladors del filament estan operatius
 bool check_coilFan = false; //comprova si el ventilador de la bobina està operatiu
 
+//booleans processos per lcd
+bool extruding = false;
+bool winding = false;
 //Pre-configuració de llibreries
 Tasker tasker;  //estableix que no hi ha prioritats de tasques (Tasker tasker(TRUE) si n'hi ha)
 LiquidCrystal lcd(RS, E, d4, d5, d6, d7); //declaració pantalla lcd
@@ -106,8 +109,9 @@ void readTemp();//funció per llegir la temp. actual i mostrar-la a la pantalla
 void ExtruderSwitches(); //funció per fer passos al motor del extrusor a través dels interruptors
 void WinderSwitches();  //funció per fer passos al motor de la bobina a través dels interruptors
 void heaterSwitch();  //funció per escalfar la el tub a través dels interruptors
-void tempCheck(); //comprova que la temp. sigui correcta per poder extrudir
-void fansCheck(); //comprova quins ventiladors estan operatius per poder extrudir
+void tempCheck(); //funció per comprovar que la temp. sigui correcta per poder extrudir
+void fansCheck(); //funció per comprovar quins ventiladors estan operatius per poder extrudir
+void lcdProcessess(); //funció per actualitzar la pantalla amb els processos actuals
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 /*+++++++++Configuració components+++++++++*/
@@ -163,7 +167,7 @@ void setup() { //Declaració de components a la placa
   //procediments inicials de la pantalla
   lcd.clear(); //buidar i esatblir 0,0 el cursor
 
-  //tasques periòdiques
+  //tasques periòdiques (es repeteixen cada X milisegons)
   tasker.setInterval(readTemp, 2000);
   tasker.setInterval(ledAction, 2500);
 }
@@ -177,12 +181,15 @@ void loop() { //funció dins "main" que es repeteix en bucle
       tasker.setTimeout(WinderSwitches, 1); //registra la tasca
       tasker.setTimeout(heaterSwitch, 1); //registra la tasca
       tasker.setTimeout(fansSwitches, 1); //registra la tasca
+      tasker.setTimeout(lcdProcessess, 1);  //registra la tasca
       tasker.loop();  //executa les tasques registrades
     }
 
     while(errorCode != 0){  //mentre errorCode no sigui 0
       Serial.println("ERROR TROBAT: "); //envia per depuració el missatge
-      Serial.println(errorCode);  //envia per depuració la variable
+      Serial.println(errorCode);  //enviaper depuració la variable
+      tasker.cancel(readTemp);  //cancela la tasca periòdica programada
+      tasker.cancel(ledAction); //cancela la tasca perióida programada
       
       switch(errorCode){  //depen de què conté errorCode
         case 1: //si és 1: temperatura massa elevada
@@ -249,6 +256,8 @@ void loop() { //funció dins "main" que es repeteix en bucle
         errorCode = 0;  //estableix errorCode 0
         break;  //surt del switch
       };
+      tasker.setInterval(ledAction, 2000);  //repren la tasca periòdica
+      tasker.setInterval(readTemp, 2000); //repren la tasca periòdica
     }
   }
   
@@ -287,6 +296,32 @@ void loop() { //funció dins "main" que es repeteix en bucle
 /*++++++++++++++++Processos++++++++++++++++*/
 
 /*+++++++++++Definició funicons++++++++++++*/
+void lcdProcessess(){ //funció per actualitzar la pantalla amb els processos actuals
+  lcd.setCursor(0,0); //mou el cursor de la lcd a l'inici
+  lcd.print(tempC); //imprimeix a la lcd la variable
+  lcd.print("ºC ");  //imprimeix a la lcd el missatge
+  
+  Serial.print("temp.: ");  //envia per depuració el missatge
+  Serial.print(tempC);  //envia per depuració la variable
+  Serial.println("ºC"); //envia per depuració el missatge
+  
+  if(extruding == true){  //si s'està extrusionant
+    lcd.setCursor(0, 8);  //mou el cursor
+    lcd.print("EXTRUSOR");  //imprimeix el missatge 
+  }
+  else {  //sinó
+    lcd.setCursor(0,8); //mou el cursor
+    lcd.print("         "); //buida la zona de la pantalla
+  }
+  if(winding == true){  //si s'està movent la bobina
+    lcd.setCursor(1,8); //mou el cursor
+    lcd.print("RECOLLINT");  //imprimeix  el missatge
+  }
+  else {  //sinó
+    lcd.setCursor(1,10); //mou el cursor
+    lcd.print("      ");  //buida la zona de la pantalla
+  }
+}
 
 void tempCheck(){ //defineix la funció per comprovar que la temp. sigui correcta per poder extrudir
   if(tempC < hotTempMax && tempC > hotTempMin) {  //si hotTempMax > tempC > hotTempMin
@@ -316,6 +351,7 @@ void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
       delay(timeToStopStep);  //espera
       digitalWrite(extruderStep, LOW);  //desactiva per poder torar a fer un altre pas
       delay(timeBetweenSteps);  //espera
+      extruding = true;
 
     }
     else if(switchExtrude == HIGH && switchExtruderInvert == HIGH){ //sinó si el boolean del motor està activat i també el d'invertir
@@ -326,11 +362,13 @@ void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
       digitalWrite(extruderStep, LOW);  //desactiva per poder fer un altre pas
       digitalWrite(extruderDir, LOW); //desactiva per tornar a la direcció normal
       delay(timeBetweenSteps);  //espera
+      extruding = true;
 
     }
     else {  //sinó
       Serial.println("Motor: Extruder: OFF"); //envia per depuració el missatge
       digitalWrite(extruderDisable, HIGH);  //activa el desactivacior del motor
+      extruding = false;
     }
   }
 }
@@ -342,6 +380,7 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
     delay(timeToStopStep);  //espera
     digitalWrite(coilStep, LOW);  //desactiva per poder fer un altre pas
     delay(timeBetweenSteps);  //espera
+    winding = true;
   }
   else if(switchWind == HIGH && switchWinderInvert == HIGH){  //sinó si el boolean del motor està activat i també el d'invertir
     Serial.println("Motor: Winder: REVERSE"); //envia per depuració el missatge
@@ -351,10 +390,12 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
     digitalWrite(coilStep, LOW);  //desactiva per poder fer un atre pas
     digitalWrite(coilDir, LOW); //desactiva per tornar a la direcció normal
     delay(timeBetweenSteps);  //espera
+    winding = true;
   }
   else {  //sinó
     Serial.println("Motor: Winder: OFF"); //envia per depuració el missatge
     digitalWrite(coilDisable, HIGH);  //activa per desactivar el motor
+    winding = false;
   }
 }
 
@@ -367,17 +408,25 @@ void heaterSwitch(){  //funció per activar la resistència segons PI
       tempVariation = hotTemp - tempC;  //resa tempC a hotTemp
       while(tempVariation > 5){ //de 50 a 199 //mentre la resta sigui major a 5
         digitalWrite(resistorSSRelay, HIGH);  //activa el relé de la resistència
+        lcd.setCursor(1,0);
+        lcd.print("HOTING");
       }
   
       while(tempVariation <= 5 && tempVariation > 0){ //de 200 a 204  //mentre la resta sigui menor a 5 i major a 0 (positiu)
         currentTimeHeater = millis(); //estableix la variable el temps actual
         do{ //fes
           digitalWrite(resistorSSRelay, HIGH);  //activa el relé de la resistència
+          lcd.setCursor(1,0);
+          lcd.print("HOTING");
         } while(millis() < currentTimeHeater + tempVariation);  //repeteix mentre no hagin passat el mateixos segons que graus restants (màxim 5)
         digitalWrite(resistorSSRelay, LOW); //desactiva el relé de la resistència
+        lcd.setCursor(1,0);
+        lcd.print("COLING");
       }
   
       digitalWrite(resistorSSRelay, LOW); //205 o més //desactiva el relé de la resistència
+      lcd.setCursor(1,0);
+      lcd.print("COLING");
   }
 }
   
@@ -390,14 +439,6 @@ void readTemp(){  //funció per llegir i calcular la temperatura a partir del va
   rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0)))) + ntcCorrection ); // valor raw (cru) de la ntc = resistència extra / ((5V / (( 5V / valor màxim ntc) * valor NTC)) + correcció) 
   tempK = 3950.0/(log(rntc/100000.0)+(3950/298.0)); // Kelvins = valor Beta NTC / (log( valor raw NTC / resistència NTC) + (valor Beta NTC / Kelvins estat normal NTC))
   tempC = tempK - 272.15; //Centígrafs = Kelvins - 272.15
-
-  lcd.setCursor(0,0); //mou el cursor de la lcd a l'inici
-  lcd.print(tempC); //imprimeix a la lcd la variable
-  lcd.print("ºC");  //imprimeix a la lcd el missatge
-  
-  Serial.print("temp.: ");  //envia per depuració el missatge
-  Serial.print(tempC);  //envia per depuració la variable
-  Serial.println("ºC"); //envia per depuració el missatge
 
 }
 
