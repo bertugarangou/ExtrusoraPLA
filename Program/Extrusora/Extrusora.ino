@@ -1,5 +1,3 @@
-
-
 /*
   Extrusora de PLA controlada per Arduino Mega 2560.
 
@@ -14,6 +12,7 @@
     This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
 */
+
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <LiquidCrystal.h>
 
@@ -66,7 +65,6 @@ int const hotTempMax = 220;  //temperatura calenta màxima per extrudir
 int const hotTemp = 205; //temperatura calenta per extrudir
 
 int const extremeTemp = 225; //temperatura massa calenta
-
 
 int tempK = 0.0;  //default "0.0"     //temperatura actual en Kelvins
 int tempC = 0.0;  //default "0.0"     //temperatura actual en Centígrafs
