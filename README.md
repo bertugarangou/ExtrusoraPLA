@@ -50,8 +50,8 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
-   * *Es pot comercialitzar*
-   * *Es pot distribuir d'igual manera i utilitzar lliurament*
+   * *Es pot comercialitzar (d'una manera concreta)*
+   * *Es pot utilitzar lliurament i d'igual manera*
    * *S'ha d'atribuir a l'autor*
    
 Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls.
