@@ -35,7 +35,7 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 * [Github](https://github.com/bertugarangou/ExtrusoraPLA/) - Sistema al núvol
 * [Arduino](https://www.arduino.cc/) - Software
 * [Arduino LiquidCrystal Library](https://www.arduino.cc/en/Reference/LiquidCrystal) - LLibreria d'Arduino per LCD
-* [Arduino Tasker Library](https://github.com/joysfera/arduino-tasker)
+* [Arduino Tasker Library](https://github.com/joysfera/arduino-tasker) - Llibreria d'Arduino per l'ús multi-tasca
 * [Autodesk](https://www.autodesk.com/) - Software
 * [Autodesk Inventor](https://www.autodesk.com/products/inventor/overview) - Software CAD 3D (enfocat a usos professionals)
 * [Autodesk Fusion](https://www.autodesk.com/products/fusion-360/overview) - Software CAD 3D (enfocat a l'educació)
