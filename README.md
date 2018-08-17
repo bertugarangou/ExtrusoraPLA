@@ -19,7 +19,7 @@ També és recomanable entendre el llenguatge de programació C++, el funcioname
  
  D'altres peces, les que estan en contacte amb zones calentes, estan fetes amb acer o alumini. Tot i així, els suports de la base són fets de fusta contraplacada.
 
-Alerta: els fitxers ".dwg", han de ser oberts amb Autodesk Inventor dels anys 2018 o 2019 per no tenir errors de visualització. A més, si són oberts amb Autodesk AutoCAD, també poden apareixer errors. Els programes d'Autodesk són de llicència gratuita educativa.
+Alerta: els fitxers han de ser oberts amb la versió 2019 per no tenir errors de visualització. Els fitxers ".dwg" han de ser oberts amb Innventor millor que amb AutoCAD. Els programes d'Autodesk són de llicència gratuita educativa.
 
 ### Instalació
 
