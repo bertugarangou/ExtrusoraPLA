@@ -64,3 +64,11 @@
   
  ### Més informació
   * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.3...1.0)
+---
+## Versió 1.1 (15/8/2018)
+
+ ### Millores
+  * Afegides noves peces en 3d, models i esquemes
+  
+ ### Més informació
+  * [Commits](https://github.com/bertugarangou/ExtrusoraPLA/compare/0.1...1.1)
