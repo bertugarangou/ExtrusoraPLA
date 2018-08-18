@@ -23,7 +23,7 @@ Alerta: els fitxers han de ser oberts amb la versió 2019 per no tenir errors de
 
 ### Instalació
 
-Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora.ino), compila'l a la placa i ja estarà llest!
+Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora/Extrusora.ino), compila'l a la placa i ja estarà llest!
 Però espera, primer necessites l'extrusora!
 
 ##  Versions
