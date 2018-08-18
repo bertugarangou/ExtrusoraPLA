@@ -39,7 +39,7 @@ int const switchFanControllers = 14; //interruptor habilitar refrigeració contr
 int const switchFanTube = 15; //interruptor habilitar refrigeració del tub
 int const switchResistor = 16;  //interruptor habilitar escalfador
 int const switchExtrude = 17; //interruptor motor extrusora
-int const switchWind = 18;  //interruptor motor bobina 
+int const switchWind = 18;  //interruptor motor bobina
 int const switchExtruderInvert = 19; //interruptor motor extrusora invertir direcció
 int const switchWinderInvert = 20; //interruptor motor bobina invertir direcció
 
@@ -73,7 +73,8 @@ int tempC = 0.0;  //default "0.0"     //temperatura actual en Centígrafs
 int const ntcCorrection = -1; //correció del valor raw de la NTC
 float rntc = 0.0; //default "0.0"     //pel calcul de raw a tº de la NTC
 
-int const timeToStopStep = 1.5; //default "1.5"     //temps entre activar pas i desactivar-lo
+int rpm = analogRead(A1); //valor llegit del potenciometre per calcular la velocitat dels motors
+int stepperSpeed; //temps entre activar un pas i desactivar-lo = velocitat motors
 int const timeBetweenSteps = 1.5; //default "1.5"     //temps entre dos passos
 
 unsigned long currentTimeReadTemp = 0; //default "0"     //temps actual obtingut de "millis()" actualitzad per la funció readTemp()
@@ -174,7 +175,7 @@ void setup() { //Declaració de components a la placa
 /*+++++++++Configuració components+++++++++*/
 
 /*++++++++++++++++Processos++++++++++++++++*/
-void loop() { //funció dins "main" que es repeteix en bucle   
+void loop() { //funció dins "main" que es repeteix en bucle
   if(digitalRead(stopButton) == LOW){ //si el botó no està pres
     while(errorCode == 0){  //mentre errorCode sigui 0
       tasker.setTimeout(ExtruderSwitches, 1); //registra la tasca
@@ -190,7 +191,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
       Serial.println(errorCode);  //enviaper depuració la variable
       tasker.cancel(readTemp);  //cancela la tasca periòdica programada
       tasker.cancel(ledAction); //cancela la tasca perióida programada
-      
+
       switch(errorCode){  //depen de què conté errorCode
         case 1: //si és 1: temperatura massa elevada
           do { //fes
@@ -198,7 +199,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
             lcd.print("TEMP ELEVADA !");  //imprimeix a la pantalla
             lcd.setCursor(1,0); //mou el cursos a la segona línia
             lcd.print("espera/reinicia"); //imprimeix a la pantalla
-            
+
             check_extrudeByTemp = false;  //estableix el boolean false
             check_arduinoFan = false; //estableix el boolean fals
             check_controllersFans = false;  //estableix el boolean fals
@@ -206,7 +207,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
             check_filamentFans = false; //estableix el boolean fals
             check_coilFan = false;  //estableix el boolean fals
             check_extrudeByRefrigeration = false; //estableix el boolean fals
-    
+
             digitalWrite(extruderDisable, HIGH);  //deshabilita el motor
             digitalWrite(coilDisable, HIGH);  //deshabilita el motor
 
@@ -215,14 +216,14 @@ void loop() { //funció dins "main" que es repeteix en bucle
             digitalWrite(fanRelayControllers, HIGH);  //activa el relé del ventilador
             digitalWrite(fanRelayWinder, HIGH); //activa el relé del ventilador
             digitalWrite(fanRelayTube, HIGH); //activa el relé del ventilador
-            
+
             readTemp(); //executa la funció
           } while(tempC > extremeTemp); //fes tot l'anteriar mentres tempC sigui menor a extremeTemp
           digitalWrite(extruderDisable, LOW); //activa el motor
           digitalWrite(coilDisable, LOW); //activa el motor
           errorCode = 0;  //estableix errorCode 0
           break;  //surt del switch
-        
+
         case 2: //si és 2: NTC llegeix 0
           do{ //fes
             lcd.clear();  //neteja la lcd
@@ -230,7 +231,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
             lcd.setCursor(1,0); //mou el cursor a la segona línia
             lcd.print("espera/reinicia"); //imprimeix a la pantalla
 
-            check_extrudeByTemp = false;  //estableix el boolean false  
+            check_extrudeByTemp = false;  //estableix el boolean false
             check_arduinoFan = false;  //estableix el boolean false
             check_controllersFans = false;  //estableix el boolean false
             check_tubeFan = false;  //estableix el boolean false
@@ -260,7 +261,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
       tasker.setInterval(readTemp, 2000); //repren la tasca periòdica
     }
   }
-  
+
   else { //sinó (si sí està pres el botó)
     lcd.clear();  //neteja la lcd
     lcd.blink();  //fes que la pantalla sigui intermitent
@@ -279,7 +280,7 @@ void loop() { //funció dins "main" que es repeteix en bucle
     check_filamentFans = false;  //estableix el boolean false
     check_coilFan = false;  //estableix el boolean false
     check_extrudeByRefrigeration = false;  //estableix el boolean false
-  
+
     digitalWrite(extruderDisable, HIGH);  //deshabilita el motor
     digitalWrite(coilDisable, HIGH);  //deshabilita el motor
 
@@ -298,29 +299,24 @@ void loop() { //funció dins "main" que es repeteix en bucle
 /*+++++++++++Definició funicons++++++++++++*/
 void lcdProcessess(){ //funció per actualitzar la pantalla amb els processos actuals
   lcd.setCursor(0,0); //mou el cursor de la lcd a l'inici
+  lcd.print("Temp:"); //imprimeix a la lcd el missatge
   lcd.print(tempC); //imprimeix a la lcd la variable
   lcd.print("ºC ");  //imprimeix a la lcd el missatge
-  
+
+  lcd.print("Vel:");  //imprimeix a la lcd el missatge
+  lcd.print(rpm); //imprimeix a la lcd la variable
+  lcd.print(" u ");  //imprimeix a la lcd el missatge
+
   Serial.print("temp.: ");  //envia per depuració el missatge
   Serial.print(tempC);  //envia per depuració la variable
   Serial.println("ºC"); //envia per depuració el missatge
   
-  if(extruding == true){  //si s'està extrusionant
-    lcd.setCursor(0, 8);  //mou el cursor
-    lcd.print("EXTRUSOR");  //imprimeix el missatge 
-  }
-  else {  //sinó
-    lcd.setCursor(0,8); //mou el cursor
-    lcd.print("         "); //buida la zona de la pantalla
-  }
-  if(winding == true){  //si s'està movent la bobina
-    lcd.setCursor(1,8); //mou el cursor
-    lcd.print("RECOLLINT");  //imprimeix  el missatge
-  }
-  else {  //sinó
-    lcd.setCursor(1,10); //mou el cursor
-    lcd.print("      ");  //buida la zona de la pantalla
-  }
+  Serial.print("Vel.:");  //envia per depuració el missatge
+  Serial.print(rpm);  //envia per depuració la variable
+  Serial.print(" u --> ");  //envia per depuració el missatge
+  Serial.print(stepperSpeed); //envia per depuració la variable
+  Serial.print(" u=s");  //envia per depuració el missatge
+ 
 }
 
 void tempCheck(){ //defineix la funció per comprovar que la temp. sigui correcta per poder extrudir
@@ -344,11 +340,12 @@ void fansCheck(){ //defineix la funció per comprovar que els ventiladors estigu
 void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
   fansCheck();//executa la funció
   tempCheck();  //executa la funció
+  stepperSpeed = map(rpm, 0, 1023, 1.5, 200); //valor a canviar, in main, in max, out min, out max
   if(check_extrudeByRefrigeration == true && check_extrudeByTemp == true) { //si els dos booleans són true
     if(switchExtrude == HIGH && switchExtruderInvert == LOW){ //si està el boolean de l'interruptor del motor activat, però no el d'invertir la direcció
       Serial.println("Motor: Extruder: ON");  //envia per depuració el missatge
       digitalWrite(extruderStep, HIGH); //activa per fer un pas
-      delay(timeToStopStep);  //espera
+      delay(stepperSpeed);  //espera
       digitalWrite(extruderStep, LOW);  //desactiva per poder torar a fer un altre pas
       delay(timeBetweenSteps);  //espera
       extruding = true;
@@ -358,7 +355,7 @@ void ExtruderSwitches(){  //funció per fer passos a través dels interruptors
       Serial.println("Motor: Extruder: REVERSE"); //envia per depuració el missatge
       digitalWrite(extruderDir, HIGH);  //activa per canviar la direcció
       digitalWrite(extruderStep, HIGH); //activa per fer un pas
-      delay(timeToStopStep);  //espera
+      delay(stepperSpeed);  //espera
       digitalWrite(extruderStep, LOW);  //desactiva per poder fer un altre pas
       digitalWrite(extruderDir, LOW); //desactiva per tornar a la direcció normal
       delay(timeBetweenSteps);  //espera
@@ -377,7 +374,7 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
   if(switchWind == HIGH && switchWinderInvert == LOW){  //si està el boolean de l'interruptor del motor activat, però no el d'invertir la direcció
     Serial.println("Motor: Winder: ON");  //envia per depuració el missatge
     digitalWrite(coilStep, HIGH); //activa per fer un pas
-    delay(timeToStopStep);  //espera
+    delay(stepperSpeed);  //espera
     digitalWrite(coilStep, LOW);  //desactiva per poder fer un altre pas
     delay(timeBetweenSteps);  //espera
     winding = true;
@@ -386,7 +383,7 @@ void WinderSwitches(){  //funció per fer passos a través dels interruptors
     Serial.println("Motor: Winder: REVERSE"); //envia per depuració el missatge
     digitalWrite(coilDir, HIGH);  //activa per fer canviar la direcció
     digitalWrite(coilStep, HIGH); //activa per fer un pas
-    delay(timeToStopStep);  //espera
+    delay(stepperSpeed);  //espera
     digitalWrite(coilStep, LOW);  //desactiva per poder fer un atre pas
     digitalWrite(coilDir, LOW); //desactiva per tornar a la direcció normal
     delay(timeBetweenSteps);  //espera
@@ -404,14 +401,14 @@ void heaterSwitch(){  //funció per activar la resistència segons PI
   fansCheck();  //executa la funció
   if(check_extrudeByTemp == true && check_extrudeByRefrigeration == true){  //si els dos booleans són true
     if(switchResistor == HIGH){ //si l'interruptor està activat
-  
+
       tempVariation = hotTemp - tempC;  //resa tempC a hotTemp
       while(tempVariation > 5){ //de 50 a 199 //mentre la resta sigui major a 5
         digitalWrite(resistorSSRelay, HIGH);  //activa el relé de la resistència
         lcd.setCursor(1,0);
         lcd.print("HOTING");
       }
-  
+
       while(tempVariation <= 5 && tempVariation > 0){ //de 200 a 204  //mentre la resta sigui menor a 5 i major a 0 (positiu)
         currentTimeHeater = millis(); //estableix la variable el temps actual
         do{ //fes
@@ -423,20 +420,20 @@ void heaterSwitch(){  //funció per activar la resistència segons PI
         lcd.setCursor(1,0);
         lcd.print("COLING");
       }
-  
+
       digitalWrite(resistorSSRelay, LOW); //205 o més //desactiva el relé de la resistència
       lcd.setCursor(1,0);
       lcd.print("COLING");
   }
 }
-  
+
   else{ //sinó
     digitalWrite(resistorSSRelay, LOW); //desactiva la resistència
   }
 }
 
 void readTemp(){  //funció per llegir i calcular la temperatura a partir del valor raw (cru) de la NTC
-  rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0)))) + ntcCorrection ); // valor raw (cru) de la ntc = resistència extra / ((5V / (( 5V / valor màxim ntc) * valor NTC)) + correcció) 
+  rntc = 10000.0 / ((5/((5.0 / 1023)*( analogRead(0)))) + ntcCorrection ); // valor raw (cru) de la ntc = resistència extra / ((5V / (( 5V / valor màxim ntc) * valor NTC)) + correcció)
   tempK = 3950.0/(log(rntc/100000.0)+(3950/298.0)); // Kelvins = valor Beta NTC / (log( valor raw NTC / resistència NTC) + (valor Beta NTC / Kelvins estat normal NTC))
   tempC = tempK - 272.15; //Centígrafs = Kelvins - 272.15
 
@@ -479,56 +476,56 @@ void fansSwitches(){  //funció habilitar/deshabilitar refrigeració
       check_arduinoFan = false; //estableix el boolean false
       Serial.println("Fan: Arduino: OFF");  //envia per depuració elmissatge
   }
-  
+
   if(switchFanControllers == HIGH){ //si l'interruptor està activat
     digitalWrite(fanRelayControllers, HIGH);  //activa el relé
     check_controllersFans = true; //estableix el boolean true
-    
+
       Serial.println("Fan: Controllers: ON"); //envia per depuració el missatge
   }
   else {  //sinó
     digitalWrite(fanRelayControllers,LOW); //desactiva el relé
     check_controllersFans = false; //estableix el boolean false
-    
+
       Serial.println("Fan: Controllers: OFF"); //envia per depuració el missatge
   }
 
   if(switchFansFilament == HIGH){ //si l'interruptor està activat
     digitalWrite(fanRelayFilament, HIGH);
     check_filamentFans = true; //estableix el boolean true
-    
+
       Serial.println("Fan: Filament: ON"); //envia per depuració el missatge
   }
   else {  //sinó
     digitalWrite(fanRelayFilament, LOW); //desactiva el relé
     check_filamentFans = false; //estableix el boolean false
-    
+
       Serial.println("Fan: Filament: OFF"); //envia per depuració el missatge
   }
 
   if(switchFanCoil == HIGH){ //si l'interruptor està activat
     digitalWrite(fanRelayWinder, HIGH);
     check_coilFan = true; //estableix el boolean true
-    
+
     Serial.println("Fan: Coil: ON"); //envia per depuració el missatge
   }
   else{ //sinó
     digitalWrite(fanRelayWinder, LOW); //desactiva el relé
     check_coilFan = false; //estableix el boolean false
-    
+
     Serial.println("Fan: Coil: OFF"); //envia per depuració el missatge
   }
 
   if(switchFanTube == HIGH){ //si l'interruptor està activat
     digitalWrite(fanRelayTube, HIGH);
     check_tubeFan = true; //estableix el boolean true
-    
+
     Serial.println("Fan: Tube: ON"); //envia per depuració el missatge
   }
   else{ //sinó
     digitalWrite(fanRelayTube, LOW); //desactiva el relé
     check_tubeFan = false; //estableix el boolean false
-    
+
     Serial.println("Fan: Tube: OFF"); //envia per depuració el missatge
   }
 }
