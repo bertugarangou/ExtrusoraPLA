@@ -61,11 +61,11 @@ int const RS = 52, E = 53, d4 = 51, d5 = 49, d6 = 47, d7 = 45;  //pins pantalla 
 int const coldTempMin = 1;   //temperatura freda mínima per manipular (podria omitir-se, però quan és 0 també pot ser degut a un error de lectura)
 int const coldTempMax = 50;  //temperatura freda màxima per manipular
 int const coldTemp = 50; //temperatura freda predeterminada
-int const hotTempMin = 198;  //temperatura calenta mínima per extrudir
-int const hotTempMax = 220;  //temperatura calenta màxima per extrudir
-int const hotTemp = 205; //temperatura calenta per extrudir
+int const hotTempMin = 170;  //temperatura calenta mínima per extrudir
+int const hotTempMax = 190;  //temperatura calenta màxima per extrudir
+int const hotTemp = 180; //temperatura calenta per extrudir
 
-int const extremeTemp = 225; //temperatura massa calenta
+int const extremeTemp = 200; //temperatura massa calenta
 
 int tempK = 0.0;  //default "0.0"     //temperatura actual en Kelvins
 int tempC = 0.0;  //default "0.0"     //temperatura actual en Centígrafs
