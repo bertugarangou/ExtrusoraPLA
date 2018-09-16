@@ -15,6 +15,7 @@
 
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <LiquidCrystal.h>  //importa la llibreria per la LCD
+#include <max6675.h>
 
 #define TASKER_MAX_TASKS 20 //estableix, de la següent llibreria, que 20 tasques a la vegada poden funcionar a la vegada
 #include <Tasker.h> //importa la llibreria pel multitasking
