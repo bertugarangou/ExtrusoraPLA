@@ -16,7 +16,7 @@
 #include <max6675.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 4); //PINS SDA i SCL
+LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 int const INTFanFil = 53;
@@ -44,7 +44,7 @@ void setup(){
   pinMode(STOPBtn, INPUT);
   pinMode(RelayFanFil, OUTPUT);
   pinMode(RelayFanTube, OUTPUT);
-
+    lcd.print("HI!!!");
 }
 
 void loop(){
@@ -63,12 +63,13 @@ void loop(){
   digitalWrite(RelayFanTube, HIGH);  //HIGH!?!?!
   while(true){//bucle infinit
   lcd.noBacklight();
-  delay(2000);
+  delay(500);
   lcd.backlight();
   delay(2000);
   }
  }
   else{
+
     if(digitalRead(INTFanFil) == HIGH){
       digitalWrite(RelayFanFil, 1);
     }
