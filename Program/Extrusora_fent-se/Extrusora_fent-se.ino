@@ -22,20 +22,32 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 unsigned long ultimMillis_LCDMain = 0UL;
 int const INTFanFil = 7;
 int const INTFanTube = 6;
-int const RelayFanFil = 52;
-int const RelayFanTube = 50;
+int const relayFanFil = 52;
+int const relayFanTube = 50;
 int const STOPBtn = 30;
 int const brunzidor = 51;
+int const extruderStep = 25;
+int const extruderDir = 26;
+int const extruderEn = 28;
+int const coilPas = 24;
+int const coilDir = 27;
+int const coilEn = 29;
 
 bool error = false;
 bool canExtrude = false;
-int currentTemp = 120; //FAKEEEEE
-int desiredTemp = 190; //FAKEEE
-int const stepperSpeed = 1.5; //0.5-100
-int const timeBetweenSteps = 1.5; //0-100
+bool heating = false;
+bool extruding = false;
+
+int currentTemp;
+int desiredTemp;
+
+int const stepperSpeed = 10; //0.5-100
+int const timeBtwSteps = 10; //0-100
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
+void fansController();
+void extruderController();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 
@@ -47,9 +59,17 @@ void setup(){
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
   pinMode(STOPBtn, INPUT);
-  pinMode(RelayFanFil, OUTPUT);
-  pinMode(RelayFanTube, OUTPUT);
+  pinMode(relayFanFil, OUTPUT);
+  pinMode(relayFanTube, OUTPUT);
   pinMode(brunzidor, OUTPUT);
+  pinMode(extruderStep, OUTPUT);
+  pinMode(extruderDir, OUTPUT);
+  pinMode(extruderEn, OUTPUT);
+  pinMode(coilPas, OUTPUT);
+  pinMode(coilDir, OUTPUT);
+  pinMode(coilEn, OUTPUT);
+  digitalWrite(coilEn, HIGH);
+  digitalWrite(extruderEn, HIGH);
 }
 
 void loop(){
@@ -66,8 +86,8 @@ void loop(){
   lcd.setCursor(0,1);
   lcd.print(" NO DESCONECTAR");
   //procedimentError();   //necessàri o només caldria missatge pantalla diferent?
-  digitalWrite(RelayFanFil, HIGH); //HIGH!?!?!?
-  digitalWrite(RelayFanTube, HIGH);  //HIGH!?!?!
+  digitalWrite(relayFanFil, LOW);
+  digitalWrite(relayFanTube, LOW);
   while(true){//bucle infinit
   lcd.noBacklight();
   digitalWrite(brunzidor, LOW);
@@ -79,30 +99,59 @@ void loop(){
  }
   else{ //funcionament estandart del programa (aka no hi ha cap error)
     //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura
-    
-    if(digitalRead(INTFanFil) == HIGH){ //quan s'activa l'interruptor adequat
-      digitalWrite(RelayFanFil, 0); //activar relé ventilador
-      //Serial.println("Ventilador: Filament **ON**");
-    }
-    else{ //sinó
-      digitalWrite(RelayFanFil, 1); //desactiva'l
-      //Serial.println("Ventilador: Filament **OFF**");
-    }
-    
-    if(digitalRead(INTFanTube) == HIGH){  //si s'activa l'interruptor adequat
-      digitalWrite(RelayFanTube, 0);  //activa el relé del ventilador
-      //Serial.println("Ventilador: Extrusora **ON**");
-    }
-    else{ //sinó
-      digitalWrite(RelayFanTube, 1);  //desactiva'l
-      //Serial.println("Ventilador: Extrusora **OFF**");
-    }
- }
  lcdController();
+ fansController();
+ extruderController();
+  }
 } //end
 
 /*+++++++++++Definició funicons++++++++++++*/
-  void lcdController(){
+void extruderController(){
+  if (digitalRead(2) == LOW && digitalRead(3) == HIGH /*&& canExtrude == true*/){//activat
+    extruding == true;
+    digitalWrite(extruderStep, HIGH);
+    delay(stepperSpeed);
+    digitalWrite(extruderStep, LOW);
+    delay(timeBtwSteps);
+  }
+  else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
+    extruding == true;
+    digitalWrite(extruderDir, HIGH);
+    digitalWrite(extruderStep, HIGH);
+    delay(stepperSpeed);
+    digitalWrite(extruderStep, LOW);
+    digitalWrite(extruderDir, LOW);
+    delay(timeBtwSteps);
+  }
+  else{
+    extruding = false;
+    digitalWrite(extruderEn, LOW);
+  }
+
+  
+}
+
+void fansController(){
+      if(digitalRead(INTFanFil) == LOW){ //quan s'activa l'interruptor adequat
+      digitalWrite(relayFanFil, LOW); //activar relé ventilador
+      //Serial.println("Ventilador: Filament **ON**");
+    }
+    else{ //sinó
+      digitalWrite(relayFanFil, HIGH); //desactiva'l
+      //Serial.println("Ventilador: Filament **OFF**");
+    }
+    
+    if(digitalRead(INTFanTube) == LOW){  //si s'activa l'interruptor adequat
+      digitalWrite(relayFanTube, LOW);  //activa el relé del ventilador
+      //Serial.println("Ventilador: Extrusora **ON**");
+    }
+    else{ //sinó
+      digitalWrite(relayFanTube, HIGH);  //desactiva'l
+      //Serial.println("Ventilador: Extrusora **OFF**");
+    }
+ }
+
+void lcdController(){
     if(millis() - ultimMillis_LCDMain >= 2000UL){
       lcd.setCursor(0,0);
       lcd.print(currentTemp);
@@ -115,9 +164,13 @@ void loop(){
         lcd.setCursor(10,0);
         lcd.print(" LLEST");
       }
-      else{
+      else if (canExtrude == false && heating == true){
         lcd.setCursor(10,0);
         lcd.print("ESPERA");
+      }
+      else{
+        lcd.setCursor(10, 0);
+        lcd.print(" PAUSA");
       }
       
       lcd.print(millis());
