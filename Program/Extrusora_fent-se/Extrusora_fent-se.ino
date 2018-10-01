@@ -41,8 +41,8 @@ bool extruding = false;
 int currentTemp;
 int desiredTemp;
 
-int const stepperSpeed = 10; //0.5-100
-int const timeBtwSteps = 10; //0-100
+int const stepperSpeed = 50; //1-1.5-2-5-10-50-100
+int const timeBtwSteps = 50; //1-1.5-2-5-10-50-100
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
@@ -109,6 +109,7 @@ void loop(){
 void extruderController(){
   if (digitalRead(2) == LOW && digitalRead(3) == HIGH /*&& canExtrude == true*/){//activat
     extruding == true;
+    digitalWrite(extruderEn, HIGH);
     digitalWrite(extruderStep, HIGH);
     delay(stepperSpeed);
     digitalWrite(extruderStep, LOW);
@@ -116,6 +117,7 @@ void extruderController(){
   }
   else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
     extruding == true;
+    digitalWrite(extruderEn, HIGH);
     digitalWrite(extruderDir, HIGH);
     digitalWrite(extruderStep, HIGH);
     delay(stepperSpeed);
@@ -128,7 +130,30 @@ void extruderController(){
     digitalWrite(extruderEn, LOW);
   }
 
-  
+void coilController(){
+  if (digitalRead(4) == LOW && digitalRead(5) == HIGH /*&& canExtrude == true*/){//activat
+    coiling == true;
+    digitalWrite(coilEn, HIGH);
+    digitalWrite(coilStep, HIGH);
+    delay(coilSpeed);
+    digitalWrite(coilStep, LOW);
+    delay(timeBtwSteps);
+  }
+  else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
+    extruding == true;
+    digitalWrite(coilEn, HIGH);
+    digitalWrite(coilDir, HIGH);
+    digitalWrite(coilStep, HIGH);
+    delay(stepperSpeed);
+    digitalWrite(coilStep, LOW);
+    digitalWrite(coilDir, LOW);
+    delay(timeBtwSteps);
+  }
+  else{
+    coiling = false;
+    digitalWrite(extruderEn, LOW);
+  }
+
 }
 
 void fansController(){
