@@ -19,8 +19,8 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
-unsigned long ultimMillis_LCDMain = 0UL;
-unsigned long lcdUpdateFrequency = 2000UL;
+
+int const lcdUpdateFrequency = 2000UL;
 int const INTFanFil = 7;
 int const INTFanTube = 6;
 int const relayFanFil = 52;
@@ -43,11 +43,14 @@ bool coiling = false;
 
 int currentTemp;
 int desiredTemp;
-
+unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
 unsigned long ultimMillis_coilStart = 0UL;
 unsigned long ultimMillis_coilStop = 0UL;
+
+int const extruderNEINSpeed = 8;
+int const coilNEINSpeed = 20;
 
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
@@ -114,10 +117,10 @@ void loop(){
 /*+++++++++++Definició funicons++++++++++++*/
 void extruderController(){
   if (digitalRead(2) == LOW && digitalRead(3) == HIGH /*&& canExtrude == true*/){//activat
-    if(millis() - ultimMillis_extruderStart >= 5){
+    if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderStep, HIGH);
-    if(millis() - ultimMillis_extruderStop >= 5){
+    if(millis() - ultimMillis_extruderStop >= extruderNEINSpeed){
       digitalWrite(extruderStep, LOW);
       ultimMillis_extruderStop = millis();
       ultimMillis_extruderStart = millis();
@@ -125,11 +128,11 @@ void extruderController(){
     }
   }
   else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
-    if(millis() - ultimMillis_extruderStart >= 5){
+    if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderDir, HIGH);
       digitalWrite(extruderStep, HIGH);
-    if(millis() - ultimMillis_extruderStop >= 5){
+    if(millis() - ultimMillis_extruderStop >= extruderNEINSpeed){
       digitalWrite(extruderStep, LOW);
       digitalWrite(extruderDir, LOW);
       ultimMillis_extruderStop = millis();
@@ -145,10 +148,10 @@ void extruderController(){
 
 void coilController(){
   if (digitalRead(4) == LOW && digitalRead(5) == LOW /*&& canCoil == true*/){//activat
-    if(millis() - ultimMillis_coilStart >= 20){
+    if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
       coiling == true;
       digitalWrite(coilStep, HIGH);
-    if(millis() - ultimMillis_coilStop >= 20){
+    if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
       digitalWrite(coilStep, LOW);
       ultimMillis_coilStop = millis();
       ultimMillis_coilStart = millis();
@@ -156,11 +159,11 @@ void coilController(){
     }
   }
   else if(digitalRead(4) == LOW && digitalRead(5) == HIGH /*&& canCoil == true*/){
-    if(millis() - ultimMillis_coilStart >= 20){
+    if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
       coiling == true;
       digitalWrite(coilDir, HIGH);
       digitalWrite(coilStep, HIGH);
-    if(millis() - ultimMillis_coilStop >= 20){
+    if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
       digitalWrite(coilStep, LOW);
       digitalWrite(coilDir, LOW);
       ultimMillis_coilStop = millis();
