@@ -29,25 +29,30 @@ int const brunzidor = 51;
 int const extruderStep = 25;
 int const extruderDir = 26;
 int const extruderEn = 28;
-int const coilPas = 24;
+int const coilStep = 24;
 int const coilDir = 27;
 int const coilEn = 29;
 
 bool error = false;
 bool canExtrude = false;
 bool heating = false;
+
 bool extruding = false;
+bool coiling = false;
 
 int currentTemp;
 int desiredTemp;
 
-int const stepperSpeed = 50; //1-1.5-2-5-10-50-100
-int const timeBtwSteps = 50; //1-1.5-2-5-10-50-100
+int const extruderSpeed = 50; //1-1.5-2-5-10-50-100
+int const coilSpeed = 50; //1-1.5-2-5-10-50-100
+int const timeBtwExtruderSteps = 50; //1-1.5-2-5-10-50-100
+int const timeBtwCoilSteps = 50; //1-1.5-2-5-10-50-100
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
 void fansController();
 void extruderController();
+void coilController();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 
@@ -65,7 +70,7 @@ void setup(){
   pinMode(extruderStep, OUTPUT);
   pinMode(extruderDir, OUTPUT);
   pinMode(extruderEn, OUTPUT);
-  pinMode(coilPas, OUTPUT);
+  pinMode(coilStep, OUTPUT);
   pinMode(coilDir, OUTPUT);
   pinMode(coilEn, OUTPUT);
   digitalWrite(coilEn, HIGH);
@@ -99,9 +104,10 @@ void loop(){
  }
   else{ //funcionament estandart del programa (aka no hi ha cap error)
     //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura
- lcdController();
- fansController();
- extruderController();
+    lcdController();
+    fansController();
+    extruderController();
+    coilController();
   }
 } //end
 
@@ -111,24 +117,25 @@ void extruderController(){
     extruding == true;
     digitalWrite(extruderEn, HIGH);
     digitalWrite(extruderStep, HIGH);
-    delay(stepperSpeed);
+    delay(extruderSpeed);
     digitalWrite(extruderStep, LOW);
-    delay(timeBtwSteps);
+    delay(timeBtwExtruderSteps);
   }
   else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
     extruding == true;
     digitalWrite(extruderEn, HIGH);
     digitalWrite(extruderDir, HIGH);
     digitalWrite(extruderStep, HIGH);
-    delay(stepperSpeed);
+    delay(extruderSpeed);
     digitalWrite(extruderStep, LOW);
     digitalWrite(extruderDir, LOW);
-    delay(timeBtwSteps);
+    delay(timeBtwExtruderSteps);
   }
   else{
     extruding = false;
     digitalWrite(extruderEn, LOW);
   }
+}
 
 void coilController(){
   if (digitalRead(4) == LOW && digitalRead(5) == HIGH /*&& canExtrude == true*/){//activat
@@ -137,17 +144,17 @@ void coilController(){
     digitalWrite(coilStep, HIGH);
     delay(coilSpeed);
     digitalWrite(coilStep, LOW);
-    delay(timeBtwSteps);
+    delay(timeBtwCoilSteps);
   }
   else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
     extruding == true;
     digitalWrite(coilEn, HIGH);
     digitalWrite(coilDir, HIGH);
     digitalWrite(coilStep, HIGH);
-    delay(stepperSpeed);
+    delay(coilSpeed);
     digitalWrite(coilStep, LOW);
     digitalWrite(coilDir, LOW);
-    delay(timeBtwSteps);
+    delay(timeBtwCoilSteps);
   }
   else{
     coiling = false;
