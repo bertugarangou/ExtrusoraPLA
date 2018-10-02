@@ -9,7 +9,7 @@ Extrusora de PLA controlada amb Arduino Mega 2560.
 * **Extrusora muntada.** Tremuga, compartiment amb vis-sens-fi, boquilla, sistema de refrigeració i sistema de bobinatge.
 * **Motors pas-a-pas NEMA 17 o 23.** Per la bobina i pel vis-sens-fi
 * **Bobina.** Per guardar el fil obtingut
-* **Font d'alimentació.** Per l'Arduino, ventiladors i motors i resistència, de 230V i 12V.
+* **Font d'alimentació.** Per l'Arduino, ventiladors i motors i resistència, de 230V, 12V i 9V/5.05V.
 
 També és recomanable entendre el llenguatge de programació C++, el funcionament de la plataforma Arduino i l'Arduino IDE.
 
