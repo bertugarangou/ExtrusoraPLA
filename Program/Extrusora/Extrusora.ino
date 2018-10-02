@@ -9,7 +9,6 @@
     curs 2018/2019, tutor: Jordi Fanals Oriol,
     codi amb Arduino IDE 1.8.5,
     Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
-    Aquest codi està llicenciat sota la SIL Open Font License, Version 1.1.
 
 */
 
