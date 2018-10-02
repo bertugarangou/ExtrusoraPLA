@@ -3,6 +3,7 @@
 ## Com funciona:
 ---
 ## Versió [NUMERO] (Data) - *CodeName*
+ ## <No Funcional>
 
  ### Millores
 
