@@ -58,6 +58,16 @@ int currentTempToShow;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
 float desiredTemp;
+
+float tempResistors1 = 0.0;
+float tempResistors2 = 0.0;
+float tempResistors3 = 0.0;
+float tempEnd1 = 0.0;
+float tempEnd2 = 0.0;
+float tempEnd3 = 0.0;
+float finalTempEnd = 0.0;
+float finalTempResistors = 0.0;
+
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
@@ -68,6 +78,28 @@ unsigned long ultimMillis_tempReader = 0UL;
 int const extruderNEINSpeed = 8;
 int const coilNEINSpeed = 20;
 
+byte downArrow[] = {
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B10101,
+  B01110,
+  B00100
+};
+
+byte upArrow[] = {
+  B00100,
+  B01110,
+  B10101,
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B00100
+};
+
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
@@ -77,6 +109,8 @@ void coilController();
 void filamentDetector();
 void heater();
 void tempRead();
+void errorProcedure();
+void quickTempRead();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 
@@ -84,6 +118,8 @@ void setup(){
   Serial.begin(9600); //inicia la depuració
   lcd.init();
   lcd.backlight();
+  lcd.createChar(2, upArrow);
+  lcd.createChar(1, downArrow);
   lcd.clear();
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
@@ -115,17 +151,21 @@ void loop(){
   Serial.println("* NO DESCONECTAR FINS QUE ESTIGUI FRED! *");
   Serial.println("*****************************************");
   lcd.clear();
-  lcd.print(" !!! ALERTA !!!");
-  lcd.setCursor(0,1);
-  lcd.print(" NO DESCONECTAR");
-  //procedimentError();   //necessàri o només caldria missatge pantalla diferent o altres passos
-  digitalWrite(relayFanFil, LOW);
-  digitalWrite(relayFanTube, LOW);
+  lcd.print("!NO DESCONECTAR!");
+  lcd.setCursor(9,1);
+  lcd.print("ALERTA!");
+  errorProcedure();
   while(true){//bucle infinit
-  lcd.noBacklight();
   digitalWrite(brunzidor, LOW);
-  delay(500);
+  lcd.noBacklight();
+  quickTempRead();
   digitalWrite(brunzidor, HIGH);
+  lcd.setCursor(0,1);
+  lcd.print((int) finalTempResistors);
+  lcd.print(char(223));
+  lcd.print("/");
+  lcd.print((int) finalTempEnd);
+  lcd.print(char(223));
   lcd.backlight();
   delay(2000);
   }
@@ -135,16 +175,17 @@ void loop(){
     lcdController();
     filamentDetector();
     fansController();
+    tempRead();
     heater();
     extruderController();
     coilController();
-    tempRead();
+    
   }
 } //end
 
 /*+++++++++++Definició funicons++++++++++++*/
 void extruderController(){
-  if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH /*&& canExtrude == true*/){//activat
+  if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH && canExtrude == true){//activat
     if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderStep, HIGH);
@@ -155,7 +196,7 @@ void extruderController(){
       }
     }
   }
-  else if(digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == LOW /*&& canExtrude == true*/){
+  else if(digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == LOW && canExtrude == true){
     if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderDir, HIGH);
@@ -245,6 +286,21 @@ void lcdController(){
       lcd.print(" PAUSA");
     }
     
+    if (extruding == true){
+      if(canCoil == true){
+      lcd.setCursor(16,1);
+      lcd.write(byte(1));
+      }
+      else if(canCoil == false){
+      lcd.setCursor(16,1);
+      lcd.write(byte(2));
+      }
+    else{
+      lcd.setCursor(16,1);
+      lcd.print(" ");
+      }
+    }
+    
     lcd.print(millis());
     ultimMillis_LCDMain = millis();
   }
@@ -271,6 +327,29 @@ void filamentDetector(){
 }
 
 void heater(){
+}
+
+void errorProcedure(){
+  digitalWrite(relayFanFil, LOW);
+  digitalWrite(relayFanTube, LOW);
+  digitalWrite(extruderStep, LOW);
+  digitalWrite(coilStep, LOW);
+  //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
+}
+
+void quickTempRead(){
+  tempEnd1 = tempSensorEnd.readCelsius();
+  tempResistors1 = tempSensorResistors.readCelsius();
+  delay(500);
+  tempEnd2 = tempSensorEnd.readCelsius();
+  tempResistors2 = tempSensorResistors.readCelsius();
+  delay(500);
+  tempEnd3 = tempSensorEnd.readCelsius();
+  tempResistors3 = tempSensorResistors.readCelsius();
+  finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3;
+  finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;
+  
+  
 }
 
 void tempRead(){
