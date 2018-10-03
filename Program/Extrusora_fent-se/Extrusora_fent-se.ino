@@ -33,10 +33,13 @@ int const extruderEn = 28;
 int const coilStep = 24;
 int const coilDir = 27;
 int const coilEn = 29;
+int const filamentUpDetector = 37;
+int const filamentDownDetector = 36;
 
 bool error = false;
 bool canExtrude = false;
 bool heating = false;
+bool canCoil = false;
 
 bool extruding = false;
 bool coiling = false;
@@ -58,6 +61,7 @@ void lcdController();
 void fansController();
 void extruderController();
 void coilController();
+void filamentDetector();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 
@@ -78,6 +82,8 @@ void setup(){
   pinMode(coilStep, OUTPUT);
   pinMode(coilDir, OUTPUT);
   pinMode(coilEn, OUTPUT);
+  pinMode(filamentUpDetector, INPUT);
+  pinMode(filamentDownDetector, INPUT);
 }
 
 void loop(){
@@ -106,8 +112,9 @@ void loop(){
   }
  }
   else{ //funcionament estandart del programa (aka no hi ha cap error)
-    //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura
+    //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura (només depuració)
     lcdController();
+    filamentDetector();
     fansController();
     extruderController();
     coilController();
@@ -147,7 +154,7 @@ void extruderController(){
 
 
 void coilController(){
-  if (digitalRead(4) == LOW && digitalRead(5) == LOW /*&& canCoil == true*/){//activat
+  if (digitalRead(4) == LOW && digitalRead(5) == LOW){ // tots dos activats
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
       coiling == true;
       digitalWrite(coilStep, HIGH);
@@ -158,68 +165,88 @@ void coilController(){
       }
     }
   }
-  else if(digitalRead(4) == LOW && digitalRead(5) == HIGH /*&& canCoil == true*/){
+  else if(digitalRead(4) == LOW && digitalRead(5) == HIGH && canCoil == true){ // sense invertir direcció
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
       coiling == true;
       digitalWrite(coilDir, HIGH);
       digitalWrite(coilStep, HIGH);
-    if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
-      digitalWrite(coilStep, LOW);
-      digitalWrite(coilDir, LOW);
-      ultimMillis_coilStop = millis();
-      ultimMillis_coilStart = millis();
+      if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
+        digitalWrite(coilStep, LOW);
+        digitalWrite(coilDir, LOW);
+        ultimMillis_coilStop = millis();
+        ultimMillis_coilStart = millis();
       }
     }
   else{
     coiling = false;
   }
-}
+  }
 }
 
 void fansController(){
-      if(digitalRead(INTFanFil) == LOW){ //quan s'activa l'interruptor adequat
-      digitalWrite(relayFanFil, LOW); //activar relé ventilador
-      //Serial.println("Ventilador: Filament **ON**");
-    }
-    else{ //sinó
-      digitalWrite(relayFanFil, HIGH); //desactiva'l
-      //Serial.println("Ventilador: Filament **OFF**");
-    }
+  if(digitalRead(INTFanFil) == LOW){ //quan s'activa l'interruptor adequat
+    digitalWrite(relayFanFil, LOW); //activar relé ventilador
+    //Serial.println("Ventilador: Filament **ON**");
+  }
+  else{ //sinó
+    digitalWrite(relayFanFil, HIGH); //desactiva'l
+    //Serial.println("Ventilador: Filament **OFF**");
+  }
     
-    if(digitalRead(INTFanTube) == LOW){  //si s'activa l'interruptor adequat
-      digitalWrite(relayFanTube, LOW);  //activa el relé del ventilador
-      //Serial.println("Ventilador: Extrusora **ON**");
-    }
-    else{ //sinó
-      digitalWrite(relayFanTube, HIGH);  //desactiva'l
-      //Serial.println("Ventilador: Extrusora **OFF**");
-    }
- }
+  if(digitalRead(INTFanTube) == LOW){  //si s'activa l'interruptor adequat
+    digitalWrite(relayFanTube, LOW);  //activa el relé del ventilador
+    //Serial.println("Ventilador: Extrusora **ON**");
+  }
+  else{ //sinó
+    digitalWrite(relayFanTube, HIGH);  //desactiva'l
+    //Serial.println("Ventilador: Extrusora **OFF**");
+  }
+}
 
 void lcdController(){
-    if(millis() - ultimMillis_LCDMain >= lcdUpdateFrequency){
-      lcd.setCursor(0,0);
-      lcd.print(currentTemp);
-      lcd.print("/");
-      lcd.print(desiredTemp);
-      lcd.print(char(223));
-      lcd.print("  ");
+  if(millis() - ultimMillis_LCDMain >= lcdUpdateFrequency){
+    lcd.setCursor(0,0);
+    lcd.print(currentTemp);
+    lcd.print("/");
+    lcd.print(desiredTemp);
+    lcd.print(char(223));
+    lcd.print("  ");
       
-      if(canExtrude == true){
-        lcd.setCursor(10,0);
-        lcd.print(" LLEST");
-      }
-      else if (canExtrude == false && heating == true){
-        lcd.setCursor(10,0);
-        lcd.print("ESPERA");
-      }
-      else{
-        lcd.setCursor(10, 0);
-        lcd.print(" PAUSA");
-      }
-      
-      lcd.print(millis());
-      ultimMillis_LCDMain = millis();
+    if(canExtrude == true){
+      lcd.setCursor(10,0);
+      lcd.print(" LLEST");
+    }
+    else if (canExtrude == false && heating == true){
+      lcd.setCursor(10,0);
+      lcd.print("ESPERA");
+    }
+    else{
+      lcd.setCursor(10, 0);
+      lcd.print(" PAUSA");
+    }
+    
+    lcd.print(millis());
+    ultimMillis_LCDMain = millis();
+  }
+}
+
+void filamentDetector(){
+  if(filamentDownDetector == LOW){
+    if(canCoil == false){
+      canCoil == true;
+    }
+    else if(canCoil == true){
+      //do nothing
     }
   }
+
+  else if(filamentUpDetector == LOW){
+    if(canCoil == false){
+      //do nothing
+    }
+    else if(canCoil == true){
+      canCoil = false;
+    }
+  }
+}
 /*+++++++++++Definició funicons++++++++++++*/
