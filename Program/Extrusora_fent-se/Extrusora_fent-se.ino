@@ -99,7 +99,7 @@ void loop(){
   lcd.print(" !!! ALERTA !!!");
   lcd.setCursor(0,1);
   lcd.print(" NO DESCONECTAR");
-  //procedimentError();   //necessàri o només caldria missatge pantalla diferent?
+  //procedimentError();   //necessàri o només caldria missatge pantalla diferent o altres passos
   digitalWrite(relayFanFil, LOW);
   digitalWrite(relayFanTube, LOW);
   while(true){//bucle infinit
