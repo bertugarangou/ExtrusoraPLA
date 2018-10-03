@@ -23,8 +23,9 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 
-int const lcdUpdateFrequency = 2500;
-int const tempReaderFrequency = 1500;
+int const lcdUpdateFrequency = 1500;  //1000-1500-x
+int const tempReaderFrequency = 1000; //1000-1500-x
+
 int const INTFanFil = 7;
 int const INTFanTube = 6;
 int const relayFanFil = 52;
