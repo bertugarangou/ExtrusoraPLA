@@ -53,12 +53,14 @@ int const relayResistors = 32;
 
 bool error = false;
 bool canExtrude = false;
-bool heating = false;
 bool canCoil = false;
 
 bool extruding = false;
 bool coilingFwd = false;
 bool coilingRev = false;
+
+bool heatingPause = false;
+bool heating = false;
 
 int currentTempToShow;
 float currentTempResistors = 0.0;
@@ -144,6 +146,17 @@ byte rev[8] = {
   B00000
 };
 
+byte pause[8] = {
+  B00000,
+  B01010,
+  B01010,
+  B01010,
+  B01010,
+  B01010,
+  B00000,
+  B00000
+};
+
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
@@ -157,7 +170,6 @@ void errorProcedure();
 void quickTempRead();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
-
 void setup(){
   Serial.begin(9600); //inicia la depuració
   lcd.init();
@@ -167,6 +179,7 @@ void setup(){
   lcd.createChar(3, cross);
   lcd.createChar(4, check);
   lcd.createChar(5, rev);
+  lcd.createChar(6, pause);
   
   lcd.clear();
   pinMode(INTFanFil, INPUT);
@@ -358,24 +371,39 @@ void lcdController(){
     }
     
     if(coilingFwd == true){  //estat bobina
-      lcd.setCursor(10,1);
+      lcd.setCursor(11,1);
       lcd.print("B:");
       lcd.write(4);
       lcd.print(" ");
     }
     else if(coilingRev == true){
-      lcd.setCursor(10,1);
+      lcd.setCursor(11,1);
       lcd.print("B:");
       lcd.write(5);
       lcd.write(5);
     }
      else{
-      lcd.setCursor(10,1);
+      lcd.setCursor(11,1);
       lcd.print("B:");
       lcd.write(3);
       lcd.print(" ");
     }
-   
+
+    if(heating == true && heatingPause == false){  //estat resistències
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(4);
+    }
+    else if(heating == true && heatingPause == true){
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(6);
+    }
+    else{
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(3);
+    }
 
     
     if (extruding == true){ //signe posició fil
