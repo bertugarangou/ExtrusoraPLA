@@ -3,29 +3,31 @@
 
   Projecte:
   - https://github.com/bertugarangou/ExtrusoraPLA
-  Circuit:
   - Extrusora feta per Albert Garangou,
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
-    codi amb Arduino IDE
-    Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
-    Aquest codi està llicenciat sota la SIL Open Font License, Version 1.1.
+    codi amb Arduino IDE.
+  - Tots els drets reservats 2019 Albert Garangou Culebras (albertgarangou@gmail.com).
+    Aquest codi està llicenciat amb base a la Creative "Commons Attribution-NonCommercial-NoDerivatives 4.0 International License".
+    Altres regles i mesures pròpies sobreescriuen i modifiquen aquesta llicència són presents, consulta el web origen per a més informació.
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <max6675.h>
 MAX6675 tempSensorResistors(8, 9, 10);
 MAX6675 tempSensorEnd(11, 12, 13);
+
 #include <Wire.h>
+
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 
-int const lcdUpdateFrequency = 500;  //1000-1500-x
+int const lcdUpdateFrequency = 250;  //1000-1500-x
 int const tempReaderFrequency = 1000; //1000-1500-x
-int const heaterFrequency = 500; //500-1000-x
+int const heaterFrequency = 0; //0 (instantari)-500-1000-x
 
 int const INTFanFil = 7;
 int const INTFanTube = 6;
