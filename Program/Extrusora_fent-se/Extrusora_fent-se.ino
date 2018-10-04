@@ -23,8 +23,9 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 
-int const lcdUpdateFrequency = 1500;  //1000-1500-x
+int const lcdUpdateFrequency = 500;  //1000-1500-x
 int const tempReaderFrequency = 1000; //1000-1500-x
+int const heaterFrequency = 500; //500-1000-x
 
 int const INTFanFil = 7;
 int const INTFanTube = 6;
@@ -45,7 +46,8 @@ int const INTExtruder = 2;
 int const INTExtruderRev = 3;
 int const INTCoil = 4;
 int const INTCoilRev = 5;
-int const RelayResistor = 32;
+int const INTHeater = 49;
+int const relayResistors = 32;
 
 bool error = false;
 bool canExtrude = false;
@@ -53,12 +55,15 @@ bool heating = false;
 bool canCoil = false;
 
 bool extruding = false;
-bool coiling = false;
+bool coilingFwd = false;
+bool coilingRev = false;
 
 int currentTempToShow;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
-float desiredTemp;
+
+float desiredTempEnd = 0.0;
+float desiredTempResistors = 0.0;
 
 float tempResistors1 = 0.0;
 float tempResistors2 = 0.0;
@@ -69,17 +74,20 @@ float tempEnd3 = 0.0;
 float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
+int const slowTempRange = 5;  
+
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
 unsigned long ultimMillis_coilStart = 0UL;
 unsigned long ultimMillis_coilStop = 0UL;
 unsigned long ultimMillis_tempReader = 0UL;
+unsigned long ultimMillis_heaterMain = 0UL;
 
 int const extruderNEINSpeed = 8;
 int const coilNEINSpeed = 20;
 
-byte downArrow[] = {
+byte downArrow[8] = {
   B00100,
   B00100,
   B00100,
@@ -90,7 +98,7 @@ byte downArrow[] = {
   B00100
 };
 
-byte upArrow[] = {
+byte upArrow[8] = {
   B00100,
   B01110,
   B10101,
@@ -99,6 +107,39 @@ byte upArrow[] = {
   B00100,
   B00100,
   B00100
+};
+
+byte cross[8] = {
+  B00000,
+  B10001,
+  B01010,
+  B00100,
+  B01010,
+  B10001,
+  B00000,
+  B00000
+};
+
+byte check[8] = {
+  B00000,
+  B00000,
+  B00001,
+  B00010,
+  B10100,
+  B01000,
+  B00000,
+  B00000
+};
+
+byte rev[8] = {
+  B00010,
+  B00110,
+  B01110,
+  B11110,
+  B01110,
+  B00110,
+  B00010,
+  B00000
 };
 
 /*++Declaració variables i constants+++*/
@@ -119,8 +160,12 @@ void setup(){
   Serial.begin(9600); //inicia la depuració
   lcd.init();
   lcd.backlight();
-  lcd.createChar(2, upArrow);
   lcd.createChar(1, downArrow);
+  lcd.createChar(2, upArrow);
+  lcd.createChar(3, cross);
+  lcd.createChar(4, check);
+  lcd.createChar(5, rev);
+  
   lcd.clear();
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
@@ -140,6 +185,9 @@ void setup(){
   pinMode(INTExtruderRev, INPUT);
   pinMode(INTCoil, INPUT);
   pinMode(INTCoilRev, INPUT);
+  pinMode(INTHeater, INPUT);
+  pinMode(relayResistors, OUTPUT);
+  digitalWrite(relayResistors, LOW);
 }
 
 void loop(){
@@ -218,7 +266,8 @@ void extruderController(){
 void coilController(){
   if (digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == LOW){ // tots dos activats
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
-      coiling == true;
+      coilingFwd = false;
+      coilingRev = true;
       digitalWrite(coilStep, HIGH);
     if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
       digitalWrite(coilStep, LOW);
@@ -229,7 +278,8 @@ void coilController(){
   }
   else if(digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == HIGH && canCoil == true){ // sense invertir direcció
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
-      coiling == true;
+      coilingFwd = true;
+      coilingRev = false;
       digitalWrite(coilDir, HIGH);
       digitalWrite(coilStep, HIGH);
       if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
@@ -239,9 +289,10 @@ void coilController(){
         ultimMillis_coilStart = millis();
       }
     }
-  else{
-    coiling = false;
   }
+  else{
+    coilingFwd = false;
+    coilingRev = false;
   }
 }
 
@@ -270,15 +321,15 @@ void lcdController(){
     lcd.setCursor(0,0);
     lcd.print(currentTempToShow);
     lcd.print("/");
-    lcd.print((int) desiredTemp);
+    lcd.print((int) desiredTempEnd);
     lcd.print(char(223));
     lcd.print("  ");
       
-    if(canExtrude == true){
+    if(canExtrude == true){ //estat general
       lcd.setCursor(10,0);
       lcd.print("ACTIVAT");
     }
-    else if (canExtrude == false && heating == true){
+    else if(canExtrude == false && heating == true){
       lcd.setCursor(10,0);
       lcd.print("ESPERA");
     }
@@ -286,15 +337,53 @@ void lcdController(){
       lcd.setCursor(10, 0);
       lcd.print(" PAUSA");
     }
+
+    if(extruding == true && canCoil == true){ //estat extrusor
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(4);
+    }
+    else if(extruding == true && canCoil == false){
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(4);
+
+    }
+    else if(extruding == false){
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(3);
+    }
     
-    if (extruding == true){
+    if(coilingFwd == true){  //estat bobina
+      lcd.setCursor(10,1);
+      lcd.print("B:");
+      lcd.write(4);
+      lcd.print(" ");
+    }
+    else if(coilingRev == true){
+      lcd.setCursor(10,1);
+      lcd.print("B:");
+      lcd.write(5);
+      lcd.write(5);
+    }
+     else{
+      lcd.setCursor(10,1);
+      lcd.print("B:");
+      lcd.write(3);
+      lcd.print(" ");
+    }
+   
+
+    
+    if (extruding == true){ //signe posició fil
       if(canCoil == true){
       lcd.setCursor(16,1);
-      lcd.write(byte(1));
+      lcd.write(1);
       }
       else if(canCoil == false){
       lcd.setCursor(16,1);
-      lcd.write(byte(2));
+      lcd.write(2);
       }
     else{
       lcd.setCursor(16,1);
@@ -302,7 +391,6 @@ void lcdController(){
       }
     }
     
-    lcd.print(millis());
     ultimMillis_LCDMain = millis();
   }
 }
@@ -310,16 +398,18 @@ void lcdController(){
 void filamentDetector(){
   if(filamentDownDetector == LOW){
     if(canCoil == false){
-      canCoil == true;
+      canCoil = true;
     }
     else if(canCoil == true){
       //do nothing
+      //canCoil = true;
     }
   }
 
   else if(filamentUpDetector == LOW){
     if(canCoil == false){
       //do nothing
+      //canCoil = false;
     }
     else if(canCoil == true){
       canCoil = false;
@@ -328,6 +418,25 @@ void filamentDetector(){
 }
 
 void heater(){
+  if(digitalRead(INTHeater) == LOW){//if(millis() - ultimMillis_heaterMain >= HeaterFrequency)
+    desiredTempEnd = 190.0;
+    desiredTempResistors = 190.0;
+    if(millis() - ultimMillis_heaterMain >= heaterFrequency){
+      if(desiredTempEnd - currentTempEnd > slowTempRange){  //més de X graus de diferència per arribar
+      digitalWrite(relayResistors, HIGH);
+      heating = true;
+      }
+      //else if((desiredTempEnd - currentTempEnd) =< slowTempRange && (desiredTempEnd - currentTempEnd) > 0){ //menys de 5 graus de diferència per arribar
+        
+      //}
+      }
+  }
+  else{
+    desiredTempEnd = 0.0;
+    desiredTempResistors = 0.0;
+    digitalWrite(relayResistors, LOW);
+    heating = false;
+  }
 }
 
 void errorProcedure(){
@@ -335,6 +444,7 @@ void errorProcedure(){
   digitalWrite(relayFanTube, LOW);
   digitalWrite(extruderStep, LOW);
   digitalWrite(coilStep, LOW);
+  digitalWrite(relayResistors, LOW);
   //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
 }
 
