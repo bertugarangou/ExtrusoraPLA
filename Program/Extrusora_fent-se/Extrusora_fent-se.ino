@@ -41,7 +41,8 @@ int const extruderEn = 28;
 int const coilStep = 24;
 int const coilDir = 27;
 int const coilEn = 29;
-int const filamentDetector = 36;
+int const filamentUpDetector = 37;
+int const filamentDownDetector = 36;
 int const INTHeat = 53;
 int const INTExtruder = 2;
 int const INTExtruderRev = 3;
@@ -162,7 +163,7 @@ void lcdController();
 void fansController();
 void extruderController();
 void coilController();
-void filamentDetectorFunction();
+void filamentDetector();
 void heater();
 void tempRead();
 void errorProcedure();
@@ -193,7 +194,8 @@ void setup(){
   pinMode(coilStep, OUTPUT);
   pinMode(coilDir, OUTPUT);
   pinMode(coilEn, OUTPUT);
-  pinMode(filamentDetector, INPUT);
+  pinMode(filamentUpDetector, INPUT);
+  pinMode(filamentDownDetector, INPUT);
   pinMode(INTExtruder, INPUT);
   pinMode(INTExtruderRev, INPUT);
   pinMode(INTCoil, INPUT);
@@ -235,7 +237,7 @@ void loop(){
   else{ //funcionament estandart del programa (aka no hi ha cap error)
     //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura (només depuració)
     lcdController();
-    filamentDetectorFunction();
+    filamentDetector();
     fansController();
     tempRead();
     heater();
@@ -405,13 +407,13 @@ void lcdController(){
 
     
     if (extruding == true){ //signe posició fil
-      if(coilingFwd == true){
-      lcd.setCursor(15,1);
-      lcd.write(2);
-      }
-      else if(coilingRev == false){
-      lcd.setCursor(15,1);
+      if(canCoil == true){
+      lcd.setCursor(16,1);
       lcd.write(1);
+      }
+      else if(canCoil == false){
+      lcd.setCursor(16,1);
+      lcd.write(2);
       }
     else{
       lcd.setCursor(16,1);
@@ -423,14 +425,26 @@ void lcdController(){
   }
 }
 
-void filamentDetectorFunction(){
-  if(filamentDetector == LOW){
-    canCoil = true;
-  }
-  else {
-    canCoil = false;
+void filamentDetector(){
+  if(filamentDownDetector == LOW){
+    if(canCoil == false){
+      canCoil = true;
+    }
+    else if(canCoil == true){
+      //do nothing
+      //canCoil = true;
+    }
   }
 
+  else if(filamentUpDetector == LOW){
+    if(canCoil == false){
+      //do nothing
+      //canCoil = false;
+    }
+    else if(canCoil == true){
+      canCoil = false;
+    }
+  }
 }
 
 void heater(){
