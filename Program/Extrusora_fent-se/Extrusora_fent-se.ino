@@ -14,8 +14,8 @@
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <max6675.h>
-MAX6675 tempSensorResistors(8, 9, 10);
-MAX6675 tempSensorEnd(11, 12, 13);
+MAX6675 tempSensorResistors(11, 12, 13);
+MAX6675 tempSensorEnd(8, 9, 10);
 
 #include <Wire.h>
 
@@ -24,13 +24,12 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
-
 int const lcdUpdateFrequency = 250;  //1000-1500-x
 int const tempReaderFrequency = 1000; //1000-1500-x
 int const heaterFrequency = 0; //0 (instantari)-500-1000-x
 
-int const INTFanFil = 7;
-int const INTFanTube = 6;
+int const INTFanFil = 6;
+int const INTFanTube = 7;
 int const relayFanFil = 52;
 int const relayFanTube = 50;
 int const STOPBtn = 30;
@@ -61,12 +60,13 @@ bool coilingRev = false;
 bool heatingPause = false;
 bool heating = false;
 
-int currentTempToShow;
+int tempToShow;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
 
-float desiredTempEnd = 0.0;
-float desiredTempResistors = 0.0;
+float desiredTemp = 200.0;
+float desiredTempEnd = 165;
+float desiredTempResistors = 200;
 
 float tempResistors1 = 0.0;
 float tempResistors2 = 0.0;
@@ -233,7 +233,6 @@ void loop(){
   }
  }
   else{ //funcionament estandart del programa (aka no hi ha cap error)
-    //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura (només depuració)
     lcdController();
     filamentDetectorFunction();
     fansController();
@@ -332,9 +331,9 @@ void fansController(){
 void lcdController(){
   if(millis() - ultimMillis_LCDMain >= lcdUpdateFrequency){
     lcd.setCursor(0,0);
-    lcd.print(currentTempToShow);
+    lcd.print((int) currentTempResistors);
     lcd.print("/");
-    lcd.print((int) desiredTempEnd);
+    lcd.print((int) desiredTemp);
     lcd.print(char(223));
     lcd.print("  ");
       
@@ -404,20 +403,18 @@ void lcdController(){
     }
 
     
-    if (extruding == true){ //signe posició fil
       if(coilingFwd == true){
       lcd.setCursor(15,1);
       lcd.write(2);
       }
-      else if(coilingRev == false){
+      else if(coilingRev == true){
       lcd.setCursor(15,1);
       lcd.write(1);
       }
     else{
-      lcd.setCursor(16,1);
+      lcd.setCursor(15,1);
       lcd.print(" ");
       }
-    }
     
     ultimMillis_LCDMain = millis();
   }
@@ -425,31 +422,38 @@ void lcdController(){
 
 void filamentDetectorFunction(){
   if(filamentDetector == LOW){
+    coilingRev = true;
     canCoil = true;
   }
   else {
-    canCoil = false;
+    coilingFwd = false;
   }
 
 }
 
 void heater(){
-  if(digitalRead(INTHeater) == LOW){//if(millis() - ultimMillis_heaterMain >= HeaterFrequency)
-    desiredTempEnd = 190.0;
-    desiredTempResistors = 190.0;
+  if(digitalRead(INTHeater) == LOW){
+    desiredTemp = 190;
     if(millis() - ultimMillis_heaterMain >= heaterFrequency){
-      if(desiredTempEnd - currentTempEnd > slowTempRange){  //més de X graus de diferència per arribar
-      digitalWrite(relayResistors, HIGH);
-      heating = true;
+
+      if((desiredTempEnd - currentTempEnd) > 0 && (desiredTempResistors - currentTempResistors) > 0){  //estan els dos per sota
+        digitalWrite(relayResistors, HIGH);
+        heating = true;
       }
-      //else if((desiredTempEnd - currentTempEnd) =< slowTempRange && (desiredTempEnd - currentTempEnd) > 0){ //menys de 5 graus de diferència per arribar
-        
-      //}
+      else if((desiredTempEnd - currentTempEnd) > 15){ //per sota el final amb molta distància
+        digitalWrite(relayResistors, HIGH);
+        heating = true;
       }
+      else{
+        digitalWrite(relayResistors, LOW);
+        heating = false;
+      }
+    }
   }
   else{
-    desiredTempEnd = 0.0;
-    desiredTempResistors = 0.0;
+    desiredTempEnd = 0;
+    desiredTempResistors = 0;
+    desiredTemp = 0;
     digitalWrite(relayResistors, LOW);
     heating = false;
   }
@@ -483,8 +487,14 @@ void tempRead(){
   if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
     currentTempEnd = tempSensorEnd.readCelsius();
     currentTempResistors = tempSensorResistors.readCelsius();
+    Serial.println(currentTempEnd);
+    Serial.println(currentTempResistors);
+    Serial.println("-------------");
+
+    tempToShow = currentTempEnd * 0.75 + currentTempResistors * 0.25;
     
     ultimMillis_tempReader = millis();
   }
+
 }
 /*+++++++++++Definició funicons++++++++++++*/
