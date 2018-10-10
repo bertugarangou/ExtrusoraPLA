@@ -64,9 +64,9 @@ int tempToShow;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
 
-float desiredTemp = 200.0;
-float desiredTempEnd = 165;
-float desiredTempResistors = 200;
+float desiredTemp;
+float desiredTempEnd;
+float desiredTempResistors;
 
 float tempResistors1 = 0.0;
 float tempResistors2 = 0.0;
@@ -78,6 +78,9 @@ float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
 int const slowTempRange = 5;  
+
+int tempResistorsRest;
+int tempEndRest;
 
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
@@ -303,6 +306,7 @@ void coilController(){
     }
   }
   else{
+    digitalWrite(coilStep, HIGH);
     coilingFwd = false;
     coilingRev = false;
   }
@@ -434,9 +438,13 @@ void filamentDetectorFunction(){
 void heater(){
   if(digitalRead(INTHeater) == LOW){
     desiredTemp = 190;
-    if(millis() - ultimMillis_heaterMain >= heaterFrequency){
-
-      if((desiredTempEnd - currentTempEnd) > 0 && (desiredTempResistors - currentTempResistors) > 0){  //estan els dos per sota
+    desiredTempResistors = 200;
+    desiredTempEnd = 165;
+    
+    //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
+    tempEndRest = desiredTempEnd - currentTempEnd;
+    tempResistorsRest = desiredTempResistors - currentTempResistors;
+      if(tempEndRest > 0 && tempResistorsRest > 0){  //estan els dos per sota
         digitalWrite(relayResistors, HIGH);
         heating = true;
       }
@@ -448,21 +456,22 @@ void heater(){
         digitalWrite(relayResistors, LOW);
         heating = false;
       }
-    }
+    //}
   }
-  else{
+  else if (digitalRead(INTHeater) == HIGH){
     desiredTempEnd = 0;
     desiredTempResistors = 0;
     desiredTemp = 0;
     digitalWrite(relayResistors, LOW);
     heating = false;
   }
+
 }
 
 void errorProcedure(){
   digitalWrite(relayFanFil, LOW);
   digitalWrite(relayFanTube, LOW);
-  digitalWrite(extruderStep, LOW);
+  digitalWrite(extruderStep, HIGH);
   digitalWrite(coilStep, LOW);
   digitalWrite(relayResistors, LOW);
   //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
@@ -489,12 +498,14 @@ void tempRead(){
     currentTempResistors = tempSensorResistors.readCelsius();
     Serial.println(currentTempEnd);
     Serial.println(currentTempResistors);
-    Serial.println("-------------");
+
 
     tempToShow = currentTempEnd * 0.75 + currentTempResistors * 0.25;
-    
+    Serial.println(tempToShow);
+    Serial.println(heating);
+    Serial.println("-------------");
     ultimMillis_tempReader = millis();
   }
-
+  //heat suficient --> canExtrude = true
 }
 /*+++++++++++Definició funicons++++++++++++*/
