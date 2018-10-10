@@ -14,8 +14,8 @@
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <max6675.h>
-MAX6675 tempSensorResistors(8, 9, 10);
-MAX6675 tempSensorEnd(11, 12, 13);
+MAX6675 tempSensorResistors(11, 12, 13);
+MAX6675 tempSensorEnd(8, 9, 10);
 
 #include <Wire.h>
 
@@ -24,13 +24,12 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
-
 int const lcdUpdateFrequency = 250;  //1000-1500-x
 int const tempReaderFrequency = 1000; //1000-1500-x
 int const heaterFrequency = 0; //0 (instantari)-500-1000-x
 
-int const INTFanFil = 7;
-int const INTFanTube = 6;
+int const INTFanFil = 6;
+int const INTFanTube = 7;
 int const relayFanFil = 52;
 int const relayFanTube = 50;
 int const STOPBtn = 30;
@@ -41,8 +40,7 @@ int const extruderEn = 28;
 int const coilStep = 24;
 int const coilDir = 27;
 int const coilEn = 29;
-int const filamentUpDetector = 37;
-int const filamentDownDetector = 36;
+int const filamentDetector = 36;
 int const INTHeat = 53;
 int const INTExtruder = 2;
 int const INTExtruderRev = 3;
@@ -62,12 +60,13 @@ bool coilingRev = false;
 bool heatingPause = false;
 bool heating = false;
 
-int currentTempToShow;
+int tempToShow;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
 
-float desiredTempEnd = 0.0;
-float desiredTempResistors = 0.0;
+float desiredTemp;
+float desiredTempEnd;
+float desiredTempResistors;
 
 float tempResistors1 = 0.0;
 float tempResistors2 = 0.0;
@@ -79,6 +78,9 @@ float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
 int const slowTempRange = 5;  
+
+int tempResistorsRest;
+int tempEndRest;
 
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
@@ -163,7 +165,7 @@ void lcdController();
 void fansController();
 void extruderController();
 void coilController();
-void filamentDetector();
+void filamentDetectorFunction();
 void heater();
 void tempRead();
 void errorProcedure();
@@ -194,8 +196,7 @@ void setup(){
   pinMode(coilStep, OUTPUT);
   pinMode(coilDir, OUTPUT);
   pinMode(coilEn, OUTPUT);
-  pinMode(filamentUpDetector, INPUT);
-  pinMode(filamentDownDetector, INPUT);
+  pinMode(filamentDetector, INPUT);
   pinMode(INTExtruder, INPUT);
   pinMode(INTExtruderRev, INPUT);
   pinMode(INTCoil, INPUT);
@@ -235,9 +236,8 @@ void loop(){
   }
  }
   else{ //funcionament estandart del programa (aka no hi ha cap error)
-    //Serial.print("Temp: "); Serial.print(currentTemp); Serial.print("/"); Serial.println(desiredTemp);  //enviar per Serial la temperatura (només depuració)
     lcdController();
-    filamentDetector();
+    filamentDetectorFunction();
     fansController();
     tempRead();
     heater();
@@ -306,6 +306,7 @@ void coilController(){
     }
   }
   else{
+    digitalWrite(coilStep, HIGH);
     coilingFwd = false;
     coilingRev = false;
   }
@@ -334,9 +335,9 @@ void fansController(){
 void lcdController(){
   if(millis() - ultimMillis_LCDMain >= lcdUpdateFrequency){
     lcd.setCursor(0,0);
-    lcd.print(currentTempToShow);
+    lcd.print((int) currentTempResistors);
     lcd.print("/");
-    lcd.print((int) desiredTempEnd);
+    lcd.print((int) desiredTemp);
     lcd.print(char(223));
     lcd.print("  ");
       
@@ -406,73 +407,71 @@ void lcdController(){
     }
 
     
-    if (extruding == true){ //signe posició fil
-      if(canCoil == true){
-      lcd.setCursor(16,1);
-      lcd.write(1);
-      }
-      else if(canCoil == false){
-      lcd.setCursor(16,1);
+      if(coilingFwd == true){
+      lcd.setCursor(15,1);
       lcd.write(2);
       }
+      else if(coilingRev == true){
+      lcd.setCursor(15,1);
+      lcd.write(1);
+      }
     else{
-      lcd.setCursor(16,1);
+      lcd.setCursor(15,1);
       lcd.print(" ");
       }
-    }
     
     ultimMillis_LCDMain = millis();
   }
 }
 
-void filamentDetector(){
-  if(filamentDownDetector == LOW){
-    if(canCoil == false){
-      canCoil = true;
-    }
-    else if(canCoil == true){
-      //do nothing
-      //canCoil = true;
-    }
+void filamentDetectorFunction(){
+  if(filamentDetector == LOW){
+    coilingRev = true;
+    canCoil = true;
+  }
+  else {
+    coilingFwd = false;
   }
 
-  else if(filamentUpDetector == LOW){
-    if(canCoil == false){
-      //do nothing
-      //canCoil = false;
-    }
-    else if(canCoil == true){
-      canCoil = false;
-    }
-  }
 }
 
 void heater(){
-  if(digitalRead(INTHeater) == LOW){//if(millis() - ultimMillis_heaterMain >= HeaterFrequency)
-    desiredTempEnd = 190.0;
-    desiredTempResistors = 190.0;
-    if(millis() - ultimMillis_heaterMain >= heaterFrequency){
-      if(desiredTempEnd - currentTempEnd > slowTempRange){  //més de X graus de diferència per arribar
-      digitalWrite(relayResistors, HIGH);
-      heating = true;
+  if(digitalRead(INTHeater) == LOW){
+    desiredTemp = 190;
+    desiredTempResistors = 200;
+    desiredTempEnd = 165;
+    
+    //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
+    tempEndRest = desiredTempEnd - currentTempEnd;
+    tempResistorsRest = desiredTempResistors - currentTempResistors;
+      if(tempEndRest > 0 && tempResistorsRest > 0){  //estan els dos per sota
+        digitalWrite(relayResistors, HIGH);
+        heating = true;
       }
-      //else if((desiredTempEnd - currentTempEnd) =< slowTempRange && (desiredTempEnd - currentTempEnd) > 0){ //menys de 5 graus de diferència per arribar
-        
-      //}
+      else if((desiredTempEnd - currentTempEnd) > 15){ //per sota el final amb molta distància
+        digitalWrite(relayResistors, HIGH);
+        heating = true;
       }
+      else{
+        digitalWrite(relayResistors, LOW);
+        heating = false;
+      }
+    //}
   }
-  else{
-    desiredTempEnd = 0.0;
-    desiredTempResistors = 0.0;
+  else if (digitalRead(INTHeater) == HIGH){
+    desiredTempEnd = 0;
+    desiredTempResistors = 0;
+    desiredTemp = 0;
     digitalWrite(relayResistors, LOW);
     heating = false;
   }
+
 }
 
 void errorProcedure(){
   digitalWrite(relayFanFil, LOW);
   digitalWrite(relayFanTube, LOW);
-  digitalWrite(extruderStep, LOW);
+  digitalWrite(extruderStep, HIGH);
   digitalWrite(coilStep, LOW);
   digitalWrite(relayResistors, LOW);
   //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
@@ -497,8 +496,16 @@ void tempRead(){
   if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
     currentTempEnd = tempSensorEnd.readCelsius();
     currentTempResistors = tempSensorResistors.readCelsius();
-    
+    Serial.println(currentTempEnd);
+    Serial.println(currentTempResistors);
+
+
+    tempToShow = currentTempEnd * 0.75 + currentTempResistors * 0.25;
+    Serial.println(tempToShow);
+    Serial.println(heating);
+    Serial.println("-------------");
     ultimMillis_tempReader = millis();
   }
+  //heat suficient --> canExtrude = true
 }
 /*+++++++++++Definició funicons++++++++++++*/
