@@ -3,24 +3,32 @@
 
   Projecte:
   - https://github.com/bertugarangou/ExtrusoraPLA
-  Circuit:
   - Extrusora feta per Albert Garangou,
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
-    codi amb Arduino IDE
-    Copyright (c) 2018 Albert Garangou Culebras (albertgarangou@gmail.com)
-    Aquest codi està llicenciat sota la SIL Open Font License, Version 1.1.
+    codi amb Arduino IDE.
+  - Tots els drets reservats 2019 Albert Garangou Culebras (albertgarangou@gmail.com).
+    Aquest codi està llicenciat amb base a la Creative "Commons Attribution-NonCommercial-NoDerivatives 4.0 International License".
+    Altres regles i mesures pròpies sobreescriuen i modifiquen aquesta llicència són presents, consulta el web origen per a més informació.
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <max6675.h>
+MAX6675 tempSensorResistors(8, 9, 10);
+MAX6675 tempSensorEnd(11, 12, 13);
+
 #include <Wire.h>
+
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
+
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 
-int const lcdUpdateFrequency = 2000UL;
+int const lcdUpdateFrequency = 250;  //1000-1500-x
+int const tempReaderFrequency = 1000; //1000-1500-x
+int const heaterFrequency = 0; //0 (instantari)-500-1000-x
+
 int const INTFanFil = 7;
 int const INTFanTube = 6;
 int const relayFanFil = 52;
@@ -35,25 +43,119 @@ int const coilDir = 27;
 int const coilEn = 29;
 int const filamentUpDetector = 37;
 int const filamentDownDetector = 36;
+int const INTHeat = 53;
+int const INTExtruder = 2;
+int const INTExtruderRev = 3;
+int const INTCoil = 4;
+int const INTCoilRev = 5;
+int const INTHeater = 49;
+int const relayResistors = 32;
 
 bool error = false;
 bool canExtrude = false;
-bool heating = false;
 bool canCoil = false;
 
 bool extruding = false;
-bool coiling = false;
+bool coilingFwd = false;
+bool coilingRev = false;
 
-int currentTemp;
-int desiredTemp;
+bool heatingPause = false;
+bool heating = false;
+
+int currentTempToShow;
+float currentTempResistors = 0.0;
+float currentTempEnd = 0.0;
+
+float desiredTempEnd = 0.0;
+float desiredTempResistors = 0.0;
+
+float tempResistors1 = 0.0;
+float tempResistors2 = 0.0;
+float tempResistors3 = 0.0;
+float tempEnd1 = 0.0;
+float tempEnd2 = 0.0;
+float tempEnd3 = 0.0;
+float finalTempEnd = 0.0;
+float finalTempResistors = 0.0;
+
+int const slowTempRange = 5;  
+
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
 unsigned long ultimMillis_coilStart = 0UL;
 unsigned long ultimMillis_coilStop = 0UL;
+unsigned long ultimMillis_tempReader = 0UL;
+unsigned long ultimMillis_heaterMain = 0UL;
 
 int const extruderNEINSpeed = 8;
 int const coilNEINSpeed = 20;
+
+byte downArrow[8] = {
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B10101,
+  B01110,
+  B00100
+};
+
+byte upArrow[8] = {
+  B00100,
+  B01110,
+  B10101,
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B00100
+};
+
+byte cross[8] = {
+  B00000,
+  B10001,
+  B01010,
+  B00100,
+  B01010,
+  B10001,
+  B00000,
+  B00000
+};
+
+byte check[8] = {
+  B00000,
+  B00000,
+  B00001,
+  B00010,
+  B10100,
+  B01000,
+  B00000,
+  B00000
+};
+
+byte rev[8] = {
+  B00010,
+  B00110,
+  B01110,
+  B11110,
+  B01110,
+  B00110,
+  B00010,
+  B00000
+};
+
+byte pause[8] = {
+  B00000,
+  B01010,
+  B01010,
+  B01010,
+  B01010,
+  B01010,
+  B00000,
+  B00000
+};
 
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
@@ -62,13 +164,23 @@ void fansController();
 void extruderController();
 void coilController();
 void filamentDetector();
+void heater();
+void tempRead();
+void errorProcedure();
+void quickTempRead();
 /*+++++++++++Declaracio funcions+++++++++++*/
-
 
 void setup(){
   Serial.begin(9600); //inicia la depuració
   lcd.init();
   lcd.backlight();
+  lcd.createChar(1, downArrow);
+  lcd.createChar(2, upArrow);
+  lcd.createChar(3, cross);
+  lcd.createChar(4, check);
+  lcd.createChar(5, rev);
+  lcd.createChar(6, pause);
+  
   lcd.clear();
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
@@ -84,6 +196,13 @@ void setup(){
   pinMode(coilEn, OUTPUT);
   pinMode(filamentUpDetector, INPUT);
   pinMode(filamentDownDetector, INPUT);
+  pinMode(INTExtruder, INPUT);
+  pinMode(INTExtruderRev, INPUT);
+  pinMode(INTCoil, INPUT);
+  pinMode(INTCoilRev, INPUT);
+  pinMode(INTHeater, INPUT);
+  pinMode(relayResistors, OUTPUT);
+  digitalWrite(relayResistors, LOW);
 }
 
 void loop(){
@@ -96,17 +215,21 @@ void loop(){
   Serial.println("* NO DESCONECTAR FINS QUE ESTIGUI FRED! *");
   Serial.println("*****************************************");
   lcd.clear();
-  lcd.print(" !!! ALERTA !!!");
-  lcd.setCursor(0,1);
-  lcd.print(" NO DESCONECTAR");
-  //procedimentError();   //necessàri o només caldria missatge pantalla diferent?
-  digitalWrite(relayFanFil, LOW);
-  digitalWrite(relayFanTube, LOW);
+  lcd.print("!NO DESCONECTAR!");
+  lcd.setCursor(9,1);
+  lcd.print("ALERTA!");
+  errorProcedure();
   while(true){//bucle infinit
-  lcd.noBacklight();
   digitalWrite(brunzidor, LOW);
-  delay(500);
+  lcd.noBacklight();
+  quickTempRead();
   digitalWrite(brunzidor, HIGH);
+  lcd.setCursor(0,1);
+  lcd.print((int) finalTempResistors);
+  lcd.print(char(223));
+  lcd.print("/");
+  lcd.print((int) finalTempEnd);
+  lcd.print(char(223));
   lcd.backlight();
   delay(2000);
   }
@@ -116,14 +239,17 @@ void loop(){
     lcdController();
     filamentDetector();
     fansController();
+    tempRead();
+    heater();
     extruderController();
     coilController();
+    
   }
 } //end
 
 /*+++++++++++Definició funicons++++++++++++*/
 void extruderController(){
-  if (digitalRead(2) == LOW && digitalRead(3) == HIGH /*&& canExtrude == true*/){//activat
+  if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH && canExtrude == true){//activat
     if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderStep, HIGH);
@@ -134,7 +260,7 @@ void extruderController(){
       }
     }
   }
-  else if(digitalRead(2) == LOW && digitalRead(3) == LOW /*&& canExtrude == true*/){
+  else if(digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == LOW && canExtrude == true){
     if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
       extruding == true;
       digitalWrite(extruderDir, HIGH);
@@ -152,11 +278,11 @@ void extruderController(){
 }
 }
 
-
 void coilController(){
-  if (digitalRead(4) == LOW && digitalRead(5) == LOW){ // tots dos activats
+  if (digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == LOW){ // tots dos activats
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
-      coiling == true;
+      coilingFwd = false;
+      coilingRev = true;
       digitalWrite(coilStep, HIGH);
     if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
       digitalWrite(coilStep, LOW);
@@ -165,9 +291,10 @@ void coilController(){
       }
     }
   }
-  else if(digitalRead(4) == LOW && digitalRead(5) == HIGH && canCoil == true){ // sense invertir direcció
+  else if(digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == HIGH && canCoil == true){ // sense invertir direcció
     if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
-      coiling == true;
+      coilingFwd = true;
+      coilingRev = false;
       digitalWrite(coilDir, HIGH);
       digitalWrite(coilStep, HIGH);
       if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
@@ -177,9 +304,10 @@ void coilController(){
         ultimMillis_coilStart = millis();
       }
     }
-  else{
-    coiling = false;
   }
+  else{
+    coilingFwd = false;
+    coilingRev = false;
   }
 }
 
@@ -206,17 +334,17 @@ void fansController(){
 void lcdController(){
   if(millis() - ultimMillis_LCDMain >= lcdUpdateFrequency){
     lcd.setCursor(0,0);
-    lcd.print(currentTemp);
+    lcd.print(currentTempToShow);
     lcd.print("/");
-    lcd.print(desiredTemp);
+    lcd.print((int) desiredTempEnd);
     lcd.print(char(223));
     lcd.print("  ");
       
-    if(canExtrude == true){
+    if(canExtrude == true){ //estat general
       lcd.setCursor(10,0);
-      lcd.print(" LLEST");
+      lcd.print("ACTIVAT");
     }
-    else if (canExtrude == false && heating == true){
+    else if(canExtrude == false && heating == true){
       lcd.setCursor(10,0);
       lcd.print("ESPERA");
     }
@@ -224,8 +352,75 @@ void lcdController(){
       lcd.setCursor(10, 0);
       lcd.print(" PAUSA");
     }
+
+    if(extruding == true && canCoil == true){ //estat extrusor
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(4);
+    }
+    else if(extruding == true && canCoil == false){
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(4);
+
+    }
+    else if(extruding == false){
+      lcd.setCursor(0,1);
+      lcd.print("E:");
+      lcd.write(3);
+    }
     
-    lcd.print(millis());
+    if(coilingFwd == true){  //estat bobina
+      lcd.setCursor(11,1);
+      lcd.print("B:");
+      lcd.write(4);
+      lcd.print(" ");
+    }
+    else if(coilingRev == true){
+      lcd.setCursor(11,1);
+      lcd.print("B:");
+      lcd.write(5);
+      lcd.write(5);
+    }
+     else{
+      lcd.setCursor(11,1);
+      lcd.print("B:");
+      lcd.write(3);
+      lcd.print(" ");
+    }
+
+    if(heating == true && heatingPause == false){  //estat resistències
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(4);
+    }
+    else if(heating == true && heatingPause == true){
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(6);
+    }
+    else{
+      lcd.setCursor(6,1);
+      lcd.print("H:");
+      lcd.write(3);
+    }
+
+    
+    if (extruding == true){ //signe posició fil
+      if(canCoil == true){
+      lcd.setCursor(16,1);
+      lcd.write(1);
+      }
+      else if(canCoil == false){
+      lcd.setCursor(16,1);
+      lcd.write(2);
+      }
+    else{
+      lcd.setCursor(16,1);
+      lcd.print(" ");
+      }
+    }
+    
     ultimMillis_LCDMain = millis();
   }
 }
@@ -233,20 +428,77 @@ void lcdController(){
 void filamentDetector(){
   if(filamentDownDetector == LOW){
     if(canCoil == false){
-      canCoil == true;
+      canCoil = true;
     }
     else if(canCoil == true){
       //do nothing
+      //canCoil = true;
     }
   }
 
   else if(filamentUpDetector == LOW){
     if(canCoil == false){
       //do nothing
+      //canCoil = false;
     }
     else if(canCoil == true){
       canCoil = false;
     }
+  }
+}
+
+void heater(){
+  if(digitalRead(INTHeater) == LOW){//if(millis() - ultimMillis_heaterMain >= HeaterFrequency)
+    desiredTempEnd = 190.0;
+    desiredTempResistors = 190.0;
+    if(millis() - ultimMillis_heaterMain >= heaterFrequency){
+      if(desiredTempEnd - currentTempEnd > slowTempRange){  //més de X graus de diferència per arribar
+      digitalWrite(relayResistors, HIGH);
+      heating = true;
+      }
+      //else if((desiredTempEnd - currentTempEnd) =< slowTempRange && (desiredTempEnd - currentTempEnd) > 0){ //menys de 5 graus de diferència per arribar
+        
+      //}
+      }
+  }
+  else{
+    desiredTempEnd = 0.0;
+    desiredTempResistors = 0.0;
+    digitalWrite(relayResistors, LOW);
+    heating = false;
+  }
+}
+
+void errorProcedure(){
+  digitalWrite(relayFanFil, LOW);
+  digitalWrite(relayFanTube, LOW);
+  digitalWrite(extruderStep, LOW);
+  digitalWrite(coilStep, LOW);
+  digitalWrite(relayResistors, LOW);
+  //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
+}
+
+void quickTempRead(){
+  tempEnd1 = tempSensorEnd.readCelsius();
+  tempResistors1 = tempSensorResistors.readCelsius();
+  delay(500);
+  tempEnd2 = tempSensorEnd.readCelsius();
+  tempResistors2 = tempSensorResistors.readCelsius();
+  delay(500);
+  tempEnd3 = tempSensorEnd.readCelsius();
+  tempResistors3 = tempSensorResistors.readCelsius();
+  finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3;
+  finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;
+  
+  
+}
+
+void tempRead(){
+  if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
+    currentTempEnd = tempSensorEnd.readCelsius();
+    currentTempResistors = tempSensorResistors.readCelsius();
+    
+    ultimMillis_tempReader = millis();
   }
 }
 /*+++++++++++Definició funicons++++++++++++*/
