@@ -254,7 +254,7 @@ void loop(){
 /*+++++++++++Definició funicons++++++++++++*/
 void extruderController(){
   if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH){//activat
-    //if(tempToShow > 169 && tempRest > -10){
+    if(tempToShow > 169 && tempRest > -10){
       canCoil = true;
       if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
         extrudingFwd = true;
@@ -266,10 +266,10 @@ void extruderController(){
         ultimMillis_extruderStart = millis();
         }
       }
-    //}
+    }
   }
   else if(digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == LOW){//invertit
-    //if(tempToShow > 169 && tempRest > -10){
+    if(tempToShow > 169 && tempRest > -10){
       canCoil = false;
       if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
         extrudingRev = true;
@@ -283,7 +283,7 @@ void extruderController(){
         ultimMillis_extruderStart = millis();
         }
       }
-    //}
+    }
   }
   else{ //desactivat
     extrudingFwd = false;
