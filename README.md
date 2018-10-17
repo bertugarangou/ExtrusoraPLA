@@ -49,7 +49,7 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 
 Tal i com diu l’article 6è de la Llei de propietat intel·lectual (LPI):
 
-*"1. Es considera autor, llevat que hi hagi una prova en contra, la persona que consta com a tal en l'obra, mitjançant el nom, la signatura o un signe que la identifiqui"
+*"1. Es considera autor, llevat que hi hagi una prova en contra, la persona que consta com a tal en l'obra, mitjançant el nom, la signatura o un signe que la identifiqui"*
 
 Per tant:
 
