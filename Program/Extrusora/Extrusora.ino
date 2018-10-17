@@ -23,47 +23,51 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
-int const lcdUpdateFrequency = 250;  //1000-1500-x
-int const tempReaderFrequency = 1000; //1000-1500-x
-int const heaterFrequency = 0; //0 (instantari)-500-1000-x
-
-int const INTFanFil = 6;
-int const INTFanTube = 7;
-int const relayFanFil = 52;
-int const relayFanTube = 50;
-int const STOPBtn = 30;
-int const brunzidor = 51;
-int const extruderStep = 25;
-int const extruderDir = 26;
-int const extruderEn = 28;
-int const coilStep = 24;
-int const coilDir = 27;
-int const coilEn = 29;
-int const filamentDetector = 36;
-int const INTHeat = 53;
+//Frequüències d'actualització de funcions
+int const lcdUpdateFrequency = 250;  //250
+int const tempReaderFrequency = 1000; //1000
+int const heaterFrequency = 0; //0
+//entrades i sortides
 int const INTExtruder = 2;
 int const INTExtruderRev = 3;
 int const INTCoil = 4;
 int const INTCoilRev = 5;
-int const INTHeater = 49;
+int const INTFanFil = 6;
+int const INTFanTube = 7;
+int const coilStep = 24;
+int const extruderStep = 25;
+int const extruderDir = 26;
+int const coilDir = 27;
+int const extruderEn = 28;
+int const coilEn = 29;
+int const STOPBtn = 30;
 int const relayResistors = 32;
+int const filamentDetector = 36;
+int const INTHeater = 49;
+int const relayFanTube = 50;
+int const brunzidor = 51;
+int const relayFanFil = 52;
+int const INTHeat = 53;
 
+//booleans d'estat
 bool error = false;
-bool canExtrude = false;
-bool canCoil = false;
 
 bool extrudingFwd = false;
 bool extrudingRev = false;
 bool coilingFwd = false;
 bool coilingRev = false;
 
-bool heatingPause = false;
 bool heating = false;
+bool heatingPause = false;
+
+//booleans de comprovació
+bool canExtrude = false;
+bool canCoil = false;
 
 bool canCoilByFilamentDetector = false;
 
+//valors de temperatures
 int tempToShow;
-float tempRest = 0.0;
 float currentTempResistors = 0.0;
 float currentTempEnd = 0.0;
 
@@ -71,20 +75,23 @@ float desiredTemp;
 float desiredTempEnd;
 float desiredTempResistors;
 
+int const slowTempRange = 5;
+
+int tempResistorsRest;
+int tempEndRest;
+float tempRest = 0.0;
+//valors de temperatures per càlculs ràpids
 float tempResistors1 = 0.0;
 float tempResistors2 = 0.0;
 float tempResistors3 = 0.0;
 float tempEnd1 = 0.0;
 float tempEnd2 = 0.0;
 float tempEnd3 = 0.0;
+
 float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
-int const slowTempRange = 5;
-
-int tempResistorsRest;
-int tempEndRest;
-
+//ultim timestamp pròpi d'execució de funcions
 unsigned long ultimMillis_LCDMain = 0UL;
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
@@ -93,9 +100,11 @@ unsigned long ultimMillis_coilStop = 0UL;
 unsigned long ultimMillis_tempReader = 0UL;
 unsigned long ultimMillis_heaterMain = 0UL;
 
-int const extruderNEINSpeed = 6;
-int const coilNEINSpeed = 20;
+//velocitats dels motors
+int const extruderNEINSpeed = 6;  //6
+int const coilNEINSpeed = 20; //20
 
+//matrius de caràcters personalitzats lcd
 byte downArrow[8] = {
   B00100,
   B00100,
@@ -161,7 +170,6 @@ byte pause[8] = {
   B00000,
   B00000
 };
-
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
 void lcdController();
@@ -175,8 +183,9 @@ void errorProcedure();
 void quickTempRead();
 /*+++++++++++Declaracio funcions+++++++++++*/
 
-void setup(){
+void setup() {
   Serial.begin(9600); //inicia la depuració
+
   lcd.init();
   lcd.backlight();
   lcd.createChar(1, downArrow);
@@ -185,8 +194,8 @@ void setup(){
   lcd.createChar(4, check);
   lcd.createChar(5, rev);
   lcd.createChar(6, pause);
-
   lcd.clear();
+
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
   pinMode(STOPBtn, INPUT);
@@ -207,9 +216,9 @@ void setup(){
   pinMode(INTHeater, INPUT);
   pinMode(relayResistors, OUTPUT);
   digitalWrite(relayResistors, LOW);
-}
+} //end
 
-void loop(){
+void loop() {
  if(digitalRead(STOPBtn) == 0 || error == true){
   digitalWrite(brunzidor, HIGH);
   Serial.println("*****************************************");
@@ -223,22 +232,22 @@ void loop(){
   lcd.setCursor(9,1);
   lcd.print("ALERTA!");
   errorProcedure();
-  while(true){//bucle infinit
-  digitalWrite(brunzidor, LOW);
-  lcd.noBacklight();
-  quickTempRead();
-  digitalWrite(brunzidor, HIGH);
-  lcd.setCursor(0,1);
-  lcd.print((int) finalTempResistors);
-  lcd.print(char(223));
-  lcd.print("/");
-  lcd.print((int) finalTempEnd);
-  lcd.print(char(223));
-  lcd.backlight();
-  delay(2000);
+  while(true) {//bucle infinit
+    digitalWrite(brunzidor, LOW);
+    lcd.noBacklight();
+    quickTempRead();
+    digitalWrite(brunzidor, HIGH);
+    lcd.setCursor(0,1);
+    lcd.print((int) finalTempResistors);
+    lcd.print(char(223));
+    lcd.print("/");
+    lcd.print((int) finalTempEnd);
+    lcd.print(char(223));
+    lcd.backlight();
+    delay(2000);
   }
- }
-  else{ //funcionament estandart del programa (aka no hi ha cap error)
+}
+  else { //funcionament estandart del programa (no hi ha cap error)
     lcdController();
     filamentDetectorFunction();
     fansController();
@@ -246,12 +255,11 @@ void loop(){
     heater();
     extruderController();
     coilController();
-
   }
 } //end
 
 /*+++++++++++Definició funicons++++++++++++*/
-void extruderController(){
+void extruderController() {
   if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH){//activat
     if(tempToShow > 169 && tempRest > -10){
       canCoil = true;
@@ -328,20 +336,15 @@ void coilController(){
 void fansController(){
   if(digitalRead(INTFanFil) == LOW){ //quan s'activa l'interruptor adequat
     digitalWrite(relayFanFil, LOW); //activar relé ventilador
-    //Serial.println("Ventilador: Filament **ON**");
   }
   else{ //sinó
     digitalWrite(relayFanFil, HIGH); //desactiva'l
-    //Serial.println("Ventilador: Filament **OFF**");
   }
-
   if(digitalRead(INTFanTube) == LOW){  //si s'activa l'interruptor adequat
     digitalWrite(relayFanTube, LOW);  //activa el relé del ventilador
-    //Serial.println("Ventilador: Extrusora **ON**");
   }
   else{ //sinó
     digitalWrite(relayFanTube, HIGH);  //desactiva'l
-    //Serial.println("Ventilador: Extrusora **OFF**");
   }
 }
 
@@ -496,7 +499,6 @@ void errorProcedure(){
   digitalWrite(extruderStep, HIGH);
   digitalWrite(coilStep, LOW);
   digitalWrite(relayResistors, LOW);
-  //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
 }
 
 void quickTempRead(){
@@ -510,22 +512,17 @@ void quickTempRead(){
   tempResistors3 = tempSensorResistors.readCelsius();
   finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3;
   finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;
-
 }
 
 void tempRead(){
   if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
     currentTempEnd = tempSensorEnd.readCelsius();
     currentTempResistors = tempSensorResistors.readCelsius();
-    //Serial.println(currentTempEnd);
-    //Serial.println(currentTempResistors);
-
 
     tempToShow = (currentTempEnd * 70 + currentTempResistors * 30) / 100;
-    //Serial.println(tempToShow);
-    //Serial.println("-------------");
+
     ultimMillis_tempReader = millis();
   }
-  //heat suficient --> canExtrude = true
 }
 /*+++++++++++Definició funicons++++++++++++*/
+//end
