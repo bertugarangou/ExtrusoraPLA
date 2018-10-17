@@ -47,13 +47,15 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 
 ## Llicència
 
-Tal i com diu l’[article 6è de la Llei de propietat intel·lectual (LPI)](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930):
+Tal i com diu l’[article de la Llei de propietat intel·lectual (LPI)](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930):
 
-*"1. Es considera autor, llevat que hi hagi una prova en contra, la persona que consta com a tal en l'obra, mitjançant el nom, la signatura o un signe que la identifiqui"*
+*Artículo 1:
+"1. La propiedad intelectual de una obra literaria, artística o científica corresponde al autor por el solo hecho de su creación."
+2. La propiedad intelectual está integrada por derechos de carácter personal y patrimonial, que atribuyen al autor la plena disposición y el derecho exclusivo a la explotación de la obra, sin más limitaciones que las establecidas en la Ley.
+Artículo 6:
+1. Se presumirá autor, salvo prueba en contrario, a quien aparezca como tal en la obra, mediante su nombre, firma o signo que lo identifique.*
 
-Per tant:
-
-Tots els drets reservats, Albert Garangou Culebras.
+Per tant, pel dret que se m'ha concedit: **Tots els drets reservats, Albert Garangou Culebras.**
 
 Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls.
 
