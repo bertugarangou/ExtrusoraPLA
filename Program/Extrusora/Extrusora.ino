@@ -9,7 +9,7 @@
     codi amb Arduino IDE.
   - Tots els drets reservats 2019 Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi està llicenciat amb base a la Creative "Commons Attribution-NonCommercial-NoDerivatives 4.0 International License".
-    Altres regles i mesures pròpies sobreescriuen i modifiquen aquesta llicència són presents, consulta el web origen per a més informació.
+    Altres regles i mesures pròpies que sobreescriuen i modifiquen aquesta llicència són presents, consulta el web origen per a més informació.
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
@@ -18,7 +18,6 @@ MAX6675 tempSensorResistors(11, 12, 13);
 MAX6675 tempSensorEnd(8, 9, 10);
 
 #include <Wire.h>
-
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
@@ -81,7 +80,7 @@ float tempEnd3 = 0.0;
 float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
-int const slowTempRange = 5;  
+int const slowTempRange = 5;
 
 int tempResistorsRest;
 int tempEndRest;
@@ -186,7 +185,7 @@ void setup(){
   lcd.createChar(4, check);
   lcd.createChar(5, rev);
   lcd.createChar(6, pause);
-  
+
   lcd.clear();
   pinMode(INTFanFil, INPUT);
   pinMode(INTFanTube, INPUT);
@@ -247,7 +246,7 @@ void loop(){
     heater();
     extruderController();
     coilController();
-    
+
   }
 } //end
 
@@ -335,7 +334,7 @@ void fansController(){
     digitalWrite(relayFanFil, HIGH); //desactiva'l
     //Serial.println("Ventilador: Filament **OFF**");
   }
-    
+
   if(digitalRead(INTFanTube) == LOW){  //si s'activa l'interruptor adequat
     digitalWrite(relayFanTube, LOW);  //activa el relé del ventilador
     //Serial.println("Ventilador: Extrusora **ON**");
@@ -354,7 +353,7 @@ void lcdController(){
     lcd.print((int) desiredTemp);
     lcd.print(char(223));
     lcd.print("  ");
-      
+
     if(canExtrude == true){ //estat general
       lcd.setCursor(10,0);
       lcd.print("ACTIVAT");
@@ -386,7 +385,7 @@ void lcdController(){
       lcd.write(3);
       lcd.print(" ");
     }
-    
+
     if(coilingFwd == true){  //estat bobina
       lcd.setCursor(11,1);
       lcd.print("B:");
@@ -422,7 +421,7 @@ void lcdController(){
       lcd.write(3);
     }
 
-    
+
       if(coilingFwd == true){
       lcd.setCursor(15,1);
       lcd.write(2);
@@ -435,7 +434,7 @@ void lcdController(){
       lcd.setCursor(15,1);
       lcd.print(" ");
       }
-      
+
     ultimMillis_LCDMain = millis();
   }
 }
@@ -456,7 +455,7 @@ void heater(){
     desiredTemp = 175;
     desiredTempResistors = 190;
     desiredTempEnd = 165;
-    
+
     //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
     tempRest = desiredTemp - tempToShow;
       if(tempToShow > 0 && tempRest > 1){  //escalfant de lluny
@@ -511,7 +510,7 @@ void quickTempRead(){
   tempResistors3 = tempSensorResistors.readCelsius();
   finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3;
   finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;
-  
+
 }
 
 void tempRead(){
