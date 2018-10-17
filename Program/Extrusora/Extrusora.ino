@@ -18,7 +18,6 @@ MAX6675 tempSensorResistors(11, 12, 13);
 MAX6675 tempSensorEnd(8, 9, 10);
 
 #include <Wire.h>
-
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
