@@ -12,6 +12,13 @@
     Consulta el web origen per a més informació.
 
 */
+/*
+
+  -Aquesta versió del programa, conté totes les línies necessàries comentades.
+  -Funciona idènticament al original, però serveix per entendre més a fons el codi.
+  -S'actualitza al mateix moment que l'original, també està sota la mateixa llicència i normes.
+
+*/
 /*+++++++++++++Llibreries++++++++++++++*/
 #include <max6675.h>
 MAX6675 tempSensorResistors(11, 12, 13);
