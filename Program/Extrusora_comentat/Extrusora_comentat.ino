@@ -425,115 +425,116 @@ void lcdController(){ //funció per activar i desactivar els ventiladors
       lcd.print("H:");  //escriu a la pantalla
       lcd.write(4); //mostra el caràcter creat pròpi
     }
-    else if(heating == true && heatingPause == true){
-      lcd.setCursor(6,1);
-      lcd.print("H:");
-      lcd.write(6);
+    else if(heating == true && heatingPause == true){ //sinó si s'està escalfant i està en pausa
+      lcd.setCursor(6,1); //mou el cursor
+      lcd.print("H:");  //escriu a la pantalla
+      lcd.write(6); //mostra el caràcter creat pròpi
     }
-    else{
-      lcd.setCursor(6,1);
-      lcd.print("H:");
-      lcd.write(3);
+    else{ //sinó
+      lcd.setCursor(6,1); //mou el cursor
+      lcd.print("H:");  //escriu a la pantalla
+      lcd.write(3); //mostra el caràcter creat pròpi
+    }
+      //direcció fil  (fletxes)
+    if(coilingFwd == true){ //si s'extrudeix en direcció normal
+      lcd.setCursor(15,1);  //mou el cursor
+      lcd.write(2); //mostra el caràcter creat pròpi "fletxa amunt"
+    }
+    else if (coilingRev == true){
+      lcd.setCursor(15,1);  //mou el cursor
+      lcd.write(1); //mostra el caràcter creat pròpi "fletxa avall"
+    }
+    else{ //sinó
+      lcd.setCursor(15,1);  //mou el cursor
+      lcd.print(" "); //borra el següent espai (cap fletxa)
     }
 
-
-      if(coilingFwd == true){
-      lcd.setCursor(15,1);
-      lcd.write(2);
-      }
-      else if(coilingRev == true){
-      lcd.setCursor(15,1);
-      lcd.write(1);
-      }
-    else{
-      lcd.setCursor(15,1);
-      lcd.print(" ");
-      }
-
-    ultimMillis_LCDMain = millis();
+    ultimMillis_LCDMain = millis(); //estableix quan ha fet per últim cop la funció
   }
 }
 
 void filamentDetectorFunction(){  //funció per coneixer i enviar l'estat del sensor IR de penajment
-  if(extrudingFwd == true){
-    if(digitalRead(filamentDetector) == LOW){
-      canCoilByFilamentDetector = true;
+  if(extrudingFwd == true){ //si s'està extrudint en direcció normal
+    if(digitalRead(filamentDetector) == LOW){ //si es detecta el fil  (està penjant)
+      canCoilByFilamentDetector = true; //estableix que s'ha de bobinar
     }
-    else{
-      canCoilByFilamentDetector = false;
+    else{ //sinó
+      canCoilByFilamentDetector = false;  //estableix que no s'ha de bobinar
     }
   }
 }
 
 void heater(){  //funció per escalfar
-  if(digitalRead(INTHeater) == LOW){
-    desiredTemp = 175;
-    desiredTempResistors = 190;
-    desiredTempEnd = 165;
+  if(digitalRead(INTHeater) == LOW){  //si l'interruptor d'escalfament està activat
+    desiredTemp = 175;  //estableix la temp total desitjada a 175ºC
+    desiredTempResistors = 190; //estableix la temp de les resistències desitjada a 190ºC
+    desiredTempEnd = 165; //estableix la temp del final del tub desitjada a 190ºC
 
-    //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
-    tempRest = desiredTemp - tempToShow;
-      if(tempToShow > 0 && tempRest > 1){  //escalfant de lluny
-        digitalWrite(relayResistors, HIGH);
-        heating = true;
-        heatingPause = false;
+    //if(millis() - ultimMillis_heaterMain >= heaterFrequency){ //si ha passat el suficient temps des de l'últim cop que s'ha executat
+    tempRest = desiredTemp - tempToShow;  //fes la diferència de la temp desitjada total i la temp per mostrar (variació de temperatures actual i desitjada)
+      if(tempToShow > 0 && tempRest > 1){  //si la diferència anterior és major a 1 i la temp per motrar és major a 0
+        digitalWrite(relayResistors, HIGH); //activa el relé de les resistències
+        heating = true; //estableix que està escalfant
+        heatingPause = false; //estableix que en aquest precís moment està escalfant
       }
-      else if(tempRest <= -2){  //massa alta
-        digitalWrite(relayResistors, LOW);
-        heating = true;
-        heatingPause = true;
-        digitalWrite(relayFanTube, LOW);
+      else if(tempRest <= -2){  //si la diferènica anterior és igual o menor a -2 (la temp és massa elevada)
+        digitalWrite(relayResistors, LOW);  //desactiva les resistències
+        heating = true; //estableix que estàs escalfant
+        heatingPause = true;  //estableix que en aquest instant no escalfa
+        digitalWrite(relayFanTube, LOW);  //activa el ventilador del tub per accelerar la pèrdua de calor
       }
-      else if(tempToShow >0 && tempRest <= 1 && tempRest > -3){ // pausant temperatura està ok
-        digitalWrite(relayResistors, LOW);
-        heatingPause = true;
-        heating = true;
+      else if(tempToShow >0 && tempRest <= 1 && tempRest > -3){ //si la temperatura és adequada, dins l'interval "-3<temp<=1"
+        digitalWrite(relayResistors, LOW);  //desactiva les resistències
+        heatingPause = true;  //estableix que en aquest instant no escalfa
+        heating = true; //estableix que estàs escalfant
       }
-      else{ //no escalfa
-        digitalWrite(relayResistors, LOW);
-        heating = false;
-        heatingPause = false;
+      else{ //sinó
+        digitalWrite(relayResistors, LOW);  //desactiva les resistènices
+        heating = false;  //estableix que no escalfes
+        heatingPause = false; //estableix que no està en pausa l'escalfament, sinó desactivat
       }
     //}
   }
-  else if (digitalRead(INTHeater) == HIGH){
-    desiredTempEnd = 0;
-    desiredTempResistors = 0;
-    desiredTemp = 0;
-    digitalWrite(relayResistors, LOW);
-    heating = false;
+  else if (digitalRead(INTHeater) == HIGH){ //sinó si l'interruptor d'escalfar està desactivat
+    desiredTempEnd = 0; //estableix la temp del final del tub desitjada 0
+    desiredTempResistors = 0; //estableix la temp de les resistències desitjada 0
+    desiredTemp = 0;  //estableix la temperatura total desitjada 0
+    digitalWrite(relayResistors, LOW);  //desactiva les resistènices
+    heating = false;  //estableix que no està escalfant
   }
 }
 
 void errorProcedure(){  //funció amb els procediemnts per quan hi ha una emergència
-  digitalWrite(relayFanFil, LOW);
-  digitalWrite(relayFanTube, LOW);
-  digitalWrite(extruderStep, HIGH);
-  digitalWrite(coilStep, LOW);
-  digitalWrite(relayResistors, LOW);
+  digitalWrite(relayFanFil, LOW); //activa el ventilador
+  digitalWrite(relayFanTube, LOW);  //activa el ventilador
+  //la següent línia pot prevenir la corrent residual al motor
+  digitalWrite(extruderStep, HIGH); //desbloqueja/bloqueja el motor
+  //la següent línia pot prevenir la corrent residual al motor
+  digitalWrite(coilStep, LOW);  // desbloqueja/bloqueja el motor
+  digitalWrite(relayResistors, LOW);  //desactiva les resistències
 }
 
 void quickTempRead(){ //funció per llegir 3 vegades la temp i fer-ne la mitjana (només utilitzada quan hi ha un error)
-  tempEnd1 = tempSensorEnd.readCelsius();
-  tempResistors1 = tempSensorResistors.readCelsius();
+  tempEnd1 = tempSensorEnd.readCelsius(); //llegeix amb centígrafs la temp del final del tub i guarda-la
+  tempResistors1 = tempSensorResistors.readCelsius(); //llegeix amb centígrafs la temp de les resistènices i guarda-la
   delay(500);
-  tempEnd2 = tempSensorEnd.readCelsius();
-  tempResistors2 = tempSensorResistors.readCelsius();
+  tempEnd2 = tempSensorEnd.readCelsius(); //llegeix amb centígrafs la temp del final del tub i guarda-la
+  tempResistors2 = tempSensorResistors.readCelsius(); //llegeix amb centígrafs la temp de les resistènices i guarda-la
   delay(500);
-  tempEnd3 = tempSensorEnd.readCelsius();
-  tempResistors3 = tempSensorResistors.readCelsius();
-  finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3;
-  finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;
+  tempEnd3 = tempSensorEnd.readCelsius(); //llegeix amb centígrafs la temp del final del tub i guarda-la
+  tempResistors3 = tempSensorResistors.readCelsius(); //llegeix amb centígrafs la temp de les resistènices i guarda-la
+  finalTempEnd = (tempEnd1 + tempEnd2 + tempEnd3) / 3; //fes la mitjana dels tres valors i guarda-la
+  finalTempResistors = (tempResistors1 + tempResistors2 + tempResistors3) / 3;  //fes la mitjana dels tres valors i guarda-la
 }
 
 void tempRead(){  //funció per llegir la temp i calcular la mitjana no proporcional de les dues lectures
-  if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
-    currentTempEnd = tempSensorEnd.readCelsius();
-    currentTempResistors = tempSensorResistors.readCelsius();
+  if(millis() - ultimMillis_tempReader >= tempReaderFrequency){ //si ha passat el temps necessàri des d ela última execució
+    currentTempEnd = tempSensorEnd.readCelsius(); //llegeix la temp en centígrafs del final del tub i guarda-la
+    currentTempResistors = tempSensorResistors.readCelsius(); //llegiex la temp en centígrafs de les resistències i gruarda-la
 
-    tempToShow = (currentTempEnd * 70 + currentTempResistors * 30) / 100;
-
-    ultimMillis_tempReader = millis();
+    tempToShow = (currentTempEnd * 70 + currentTempResistors * 30) / 100; //calcula, segons la proporció trobada de la importància de les temperatures, la temperatura total de tot l'extrusor
+    //un 70% de la temp total és del final de l'extrusor i un 30% de les resistències
+    ultimMillis_tempReader = millis();  //estableix quan ha fet per últim cop la funció
   }
 }
 /*+++++++++++Definició funicons++++++++++++*/
