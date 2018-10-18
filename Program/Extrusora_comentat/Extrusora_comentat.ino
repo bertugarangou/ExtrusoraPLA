@@ -6,9 +6,9 @@
   - Extrusora feta per Albert Garangou,
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
-    codi amb Arduino IDE.
+    codi amb Atom i Arduino-upload package.
   - Tots els drets reservats 2018 Albert Garangou Culebras (albertgarangou@gmail.com).
-    Aquest codi és conegut com a "Proprietary software" (us privat, es necessita permís per utilitzar).
+    Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 
 */
@@ -20,20 +20,20 @@
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
-#include <max6675.h>
-MAX6675 tempSensorResistors(11, 12, 13);
-MAX6675 tempSensorEnd(8, 9, 10);
+#include <max6675.h>  //importa llibreria pel modul de temperatura
+MAX6675 tempSensorResistors(11, 12, 13);  //declara sensor temp1
+MAX6675 tempSensorEnd(8, 9, 10);  //declara sensor temp2
 
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
+#include <Wire.h> //importa la llibreria per sensors I2C
+#include <LiquidCrystal_I2C.h>  //importa llibreria per la pantalla I2C
 LiquidCrystal_I2C lcd(0x27, 16, 2); //PINS SDA i SCL lcd
 
 /*+++++++++++++Llibreries++++++++++++++*/
 /*++Declaració variables i constants+++*/
 //Frequüències d'actualització de funcions
-int const lcdUpdateFrequency = 250;  //250
-int const tempReaderFrequency = 1000; //1000
-int const heaterFrequency = 0; //0
+int const lcdUpdateFrequency = 250;  //250  //frequüència pantalla lcd
+int const tempReaderFrequency = 1000; //1000  //frequüència lectura temperatura
+int const heaterFrequency = 0; //0  //frequüència accions escalfador
 //entrades i sortides
 int const INTExtruder = 2;
 int const INTExtruderRev = 3;
@@ -57,49 +57,49 @@ int const relayFanFil = 52;
 int const INTHeat = 53;
 
 //booleans d'estat
-bool error = false;
+bool error = false; //boolean per avisar quan tingui lloc un error
 
-bool extrudingFwd = false;
-bool extrudingRev = false;
-bool coilingFwd = false;
-bool coilingRev = false;
+bool extrudingFwd = false;  //extrudint
+bool extrudingRev = false;  //extrudint del revés
+bool coilingFwd = false;  //bobinant
+bool coilingRev = false;  //bobinant del revés
 
-bool heating = false;
-bool heatingPause = false;
+bool heating = false; //estableix que s'està extrudint
+bool heatingPause = false;  //estableix que l'extrussió està en pausa
 
 //booleans de comprovació
-bool canExtrude = false;
-bool canCoil = false;
+bool canExtrude = false;  //comprova si es pot extrudir
+bool canCoil = false; //comprova si es pot bobinar
 
-bool canCoilByFilamentDetector = false;
+bool canCoilByFilamentDetector = false; //comprova si el detector IR permet bobinar
 
 //valors de temperatures
-int tempToShow;
-float currentTempResistors = 0.0;
-float currentTempEnd = 0.0;
+int tempToShow; //temp per mostrar a la lcd
+float currentTempResistors = 0.0; //temp actual de les resistències
+float currentTempEnd = 0.0; //temp actual final tub
 
-float desiredTemp;
-float desiredTempEnd;
-float desiredTempResistors;
+float desiredTemp;  //temp desitjat total
+float desiredTempEnd; //temp desithat final tub
+float desiredTempResistors; //temp desitjat resistències
 
-int const slowTempRange = 5;
+int const slowTempRange = 5;  //marge de frenada (coat) quan s'aproxima a la temp desitjada
 
-int tempResistorsRest;
-int tempEndRest;
-float tempRest = 0.0;
+int tempResistorsRest;  //calcul |temp actual resistències - temp volguda resistències|
+int tempEndRest;  //calcul | temp acual tub - temp volguda final tub
+float tempRest = 0.0; //calcul |temp acual - temp volguda|
 //valors de temperatures per càlculs ràpids
-float tempResistors1 = 0.0;
-float tempResistors2 = 0.0;
-float tempResistors3 = 0.0;
-float tempEnd1 = 0.0;
-float tempEnd2 = 0.0;
-float tempEnd3 = 0.0;
+float tempResistors1 = 0.0; //lectures temp 1
+float tempResistors2 = 0.0; //2
+float tempResistors3 = 0.0; //3
+float tempEnd1 = 0.0; //1
+float tempEnd2 = 0.0; //2
+float tempEnd3 = 0.0; //3
 
-float finalTempEnd = 0.0;
-float finalTempResistors = 0.0;
+float finalTempEnd = 0.0; //mitjana de les 3 lectures de temp del final del tub
+float finalTempResistors = 0.0; //mitjana de les 3 lectures de temp de les resistències
 
 //ultim timestamp pròpi d'execució de funcions
-unsigned long ultimMillis_LCDMain = 0UL;
+unsigned long ultimMillis_LCDMain = 0UL;  //últim cop (temps en milisegons) que s'ha executat la funció
 unsigned long ultimMillis_extruderStart = 0UL;
 unsigned long ultimMillis_extruderStop = 0UL;
 unsigned long ultimMillis_coilStart = 0UL;
@@ -108,8 +108,8 @@ unsigned long ultimMillis_tempReader = 0UL;
 unsigned long ultimMillis_heaterMain = 0UL;
 
 //velocitats dels motors
-int const extruderNEINSpeed = 6;  //6
-int const coilNEINSpeed = 20; //20
+int const extruderEmulatedSpeed = 6;  // temps entre l'activació de la bobina del motor i la desactivació
+int const coilEmulatedSpeed = 20; //20
 
 //matrius de caràcters personalitzats lcd
 byte downArrow[8] = {
@@ -270,11 +270,11 @@ void extruderController() {
   if (digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == HIGH){//activat
     if(tempToShow > 169 && tempRest > -10){
       canCoil = true;
-      if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
+      if(millis() - ultimMillis_extruderStart >= extruderEmulatedSpeed){
         extrudingFwd = true;
         extrudingRev = false;
         digitalWrite(extruderStep, HIGH);
-      if(millis() - ultimMillis_extruderStop >= extruderNEINSpeed){
+      if(millis() - ultimMillis_extruderStop >= extruderEmulatedSpeed){
         digitalWrite(extruderStep, LOW);
         ultimMillis_extruderStop = millis();
         ultimMillis_extruderStart = millis();
@@ -285,12 +285,12 @@ void extruderController() {
   else if(digitalRead(INTExtruder) == LOW && digitalRead(INTExtruderRev) == LOW){//invertit
     if(tempToShow > 169 && tempRest > -10){
       canCoil = false;
-      if(millis() - ultimMillis_extruderStart >= extruderNEINSpeed){
+      if(millis() - ultimMillis_extruderStart >= extruderEmulatedSpeed){
         extrudingRev = true;
         extrudingFwd = false;
         digitalWrite(extruderDir, HIGH);
         digitalWrite(extruderStep, HIGH);
-      if(millis() - ultimMillis_extruderStop >= extruderNEINSpeed){
+      if(millis() - ultimMillis_extruderStop >= extruderEmulatedSpeed){
         digitalWrite(extruderStep, LOW);
         digitalWrite(extruderDir, LOW);
         ultimMillis_extruderStop = millis();
@@ -308,11 +308,11 @@ void extruderController() {
 
 void coilController(){
   if (digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == LOW){ // tots dos activats
-    if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
+    if(millis() - ultimMillis_coilStart >= coilEmulatedSpeed){
       coilingFwd = false;
       coilingRev = true;
       digitalWrite(coilStep, HIGH);
-    if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
+    if(millis() - ultimMillis_coilStop >= coilEmulatedSpeed){
       digitalWrite(coilStep, LOW);
       ultimMillis_coilStop = millis();
       ultimMillis_coilStart = millis();
@@ -320,12 +320,12 @@ void coilController(){
     }
   }
   else if(digitalRead(INTCoil) == LOW && digitalRead(INTCoilRev) == HIGH && canCoilByFilamentDetector == true){ // sense invertir direcció
-    if(millis() - ultimMillis_coilStart >= coilNEINSpeed){
+    if(millis() - ultimMillis_coilStart >= coilEmulatedSpeed){
       coilingFwd = true;
       coilingRev = false;
       digitalWrite(coilDir, HIGH);
       digitalWrite(coilStep, HIGH);
-      if(millis() - ultimMillis_coilStop >= coilNEINSpeed){
+      if(millis() - ultimMillis_coilStop >= coilEmulatedSpeed){
         digitalWrite(coilStep, LOW);
         digitalWrite(coilDir, LOW);
         ultimMillis_coilStop = millis();
