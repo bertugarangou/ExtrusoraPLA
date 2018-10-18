@@ -108,11 +108,11 @@ unsigned long ultimMillis_tempReader = 0UL;
 unsigned long ultimMillis_heaterMain = 0UL;
 
 //velocitats dels motors
-int const extruderEmulatedSpeed = 6;  // temps entre l'activació de la bobina del motor i la desactivació
+int const extruderEmulatedSpeed = 6;  //6 // temps entre l'activació de la bobina del motor i la desactivació
 int const coilEmulatedSpeed = 20; //20
 
 //matrius de caràcters personalitzats lcd
-byte downArrow[8] = {
+byte downArrow[8] = { //caràcter lcd fletxa senyalant cap a baix
   B00100,
   B00100,
   B00100,
@@ -123,7 +123,7 @@ byte downArrow[8] = {
   B00100
 };
 
-byte upArrow[8] = {
+byte upArrow[8] = { //caràcter lcd fletxa senyalant cap a dalt
   B00100,
   B01110,
   B10101,
@@ -134,7 +134,7 @@ byte upArrow[8] = {
   B00100
 };
 
-byte cross[8] = {
+byte cross[8] = { //caràcter lcd creu "X"
   B00000,
   B10001,
   B01010,
@@ -145,7 +145,7 @@ byte cross[8] = {
   B00000
 };
 
-byte check[8] = {
+byte check[8] = { //caràcter lcd "tick"
   B00000,
   B00000,
   B00001,
@@ -156,7 +156,7 @@ byte check[8] = {
   B00000
 };
 
-byte rev[8] = {
+byte rev[8] = { //caràcter lcd signe revés "<<"
   B00010,
   B00110,
   B01110,
@@ -167,7 +167,7 @@ byte rev[8] = {
   B00000
 };
 
-byte pause[8] = {
+byte pause[8] = { //caràcter lcd pausa "||"
   B00000,
   B01010,
   B01010,
@@ -179,15 +179,15 @@ byte pause[8] = {
 };
 /*++Declaració variables i constants+++*/
 /*+++++++++++Declaracio funcions+++++++++++*/
-void lcdController();
-void fansController();
-void extruderController();
-void coilController();
-void filamentDetectorFunction();
-void heater();
-void tempRead();
-void errorProcedure();
-void quickTempRead();
+void lcdController();  //funció per mostrar informació a la pantalla
+void fansController();  //funció per activar i desactivar els ventiladors
+void extruderController();  //funció per controlar l'extrusor
+void coilController();  //funció per controlar la bobina
+void filamentDetectorFunction();  //funció per coneixer i enviar l'estat del sensor IR de penajment
+void heater();  //funció per escalfar
+void tempRead();  //funció per llegir la temp i calcular la mitjana no proporcional de les dues lectures
+void errorProcedure();  //funció amb els procediemnts per quan hi ha una emergència
+void quickTempRead(); //funció per llegir 3 vegades la temp i fer-ne la mitjana (només utilitzada quan hi ha un error)
 /*+++++++++++Declaracio funcions+++++++++++*/
 
 void setup() {
