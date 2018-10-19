@@ -80,7 +80,7 @@ float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
 int const slowTempRange = 5;
-
+int const tempMaxHot = -3; //-3
 int tempResistorsRest;
 int tempEndRest;
 
@@ -354,12 +354,13 @@ void lcdController(){
 
     if(canExtrude == true){ //estat general
       lcd.setCursor(10,0);
-      lcd.print("ACTIVAT");
+      lcd.print(" LLEST");
     }
     else if(canExtrude == false && heating == true){
       lcd.setCursor(10,0);
       lcd.print("ESPERA");
     }
+
     else{
       lcd.setCursor(10, 0);
       lcd.print(" PAUSA");
@@ -450,9 +451,9 @@ void filamentDetectorFunction(){
 
 void heater(){
   if(digitalRead(INTHeater) == LOW){
-    desiredTemp = 175;
-    desiredTempResistors = 190;
-    desiredTempEnd = 165;
+    desiredTemp = 180;
+    desiredTempResistors = 210;
+    desiredTempEnd = 155;
 
     //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
     tempRest = desiredTemp - tempToShow;
@@ -461,7 +462,7 @@ void heater(){
         heating = true;
         heatingPause = false;
       }
-      else if(tempRest <= -2){  //massa alta
+      else if(tempRest <= tempMaxHot){  //massa alta
         digitalWrite(relayResistors, LOW);
         heating = true;
         heatingPause = true;
@@ -521,6 +522,14 @@ void tempRead(){
     Serial.println("-------------");
     ultimMillis_tempReader = millis();
   }
-  //heat suficient --> canExtrude = true
+  if(currentTempEnd >= 155 && currentTempEnd <= 175 && currentTempResistors >= 210 && currentTempResistors <= 235){
+    canExtrude = true;
+  }
+  else if(tempToShow >= 195 || currentTempEnd > 176 || currentTempResistors > 236){
+    error = true;
+  }
+  else {
+    canExtrude = false;
+  }
 }
 /*+++++++++++Definició funicons++++++++++++*/
