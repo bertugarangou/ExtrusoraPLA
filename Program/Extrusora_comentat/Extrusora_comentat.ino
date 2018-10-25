@@ -7,7 +7,7 @@
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
     codi amb Atom i Arduino-upload package.
-  - Tots els drets reservats 2018 Albert Garangou Culebras (albertgarangou@gmail.com).
+  - Tots els drets reservats Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 
