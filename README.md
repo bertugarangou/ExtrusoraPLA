@@ -24,7 +24,7 @@ Alerta: els fitxers han de ser oberts amb la versió 2019 per no tenir errors de
 ### Instalació
 
 Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora/Extrusora.ino), compila'l a la placa i ja estarà llest!
-També pots descarregar la [versió comentada](/Program/Extrusora_comentat/Extrusora_comentat.ino) per aprendre com funciona i la [versió de deuració](/Program/Extrusora_depuracio/Extrusora_depuracio.ino) per comporvar totes les funcions i dades amb connexió sèrie (valor de refresc: 9600).
+També pots descarregar la [versió comentada](/Program/Extrusora_comentat/Extrusora_comentat.ino) per aprendre com funciona i la [versió de deuració](/Program/Extrusora_depuracio/Extrusora_depuracio.ino) per comporvar totes les funcions i dades amb connexió sèrie (valor de refresc: 9600u).
 Però espera, primer necessites l'extrusora!
 
 ##  Versions
@@ -44,7 +44,7 @@ Es pot visitar l'historial de versions (changelog) [aquí](Changelog.md)
 
 ## Authors
 
-* **Albert Garangou Culebras** - *Autor principal*
+* **Albert Garangou Culebras** - *Autor principal del projecte*
 
 ## Llicència
 
