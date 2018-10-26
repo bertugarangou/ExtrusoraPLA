@@ -6,8 +6,8 @@
   - Extrusora feta per Albert Garangou,
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
-    codi amb Arduino IDE.
-  - Tots els drets reservats 2018 Albert Garangou Culebras (albertgarangou@gmail.com).
+    codi amb Atom i Arduino-upload package.
+  - Tots els drets reservats Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 */
@@ -80,7 +80,7 @@ float finalTempEnd = 0.0;
 float finalTempResistors = 0.0;
 
 int const slowTempRange = 5;
-
+int const tempMaxHot = -3; //-3
 int tempResistorsRest;
 int tempEndRest;
 
@@ -318,7 +318,6 @@ void coilController(){
     }
   }
   else{
-    digitalWrite(coilStep, HIGH);
     coilingFwd = false;
     coilingRev = false;
   }
@@ -355,12 +354,13 @@ void lcdController(){
 
     if(canExtrude == true){ //estat general
       lcd.setCursor(10,0);
-      lcd.print("ACTIVAT");
+      lcd.print(" LLEST");
     }
     else if(canExtrude == false && heating == true){
       lcd.setCursor(10,0);
       lcd.print("ESPERA");
     }
+
     else{
       lcd.setCursor(10, 0);
       lcd.print(" PAUSA");
@@ -451,9 +451,9 @@ void filamentDetectorFunction(){
 
 void heater(){
   if(digitalRead(INTHeater) == LOW){
-    desiredTemp = 175;
-    desiredTempResistors = 190;
-    desiredTempEnd = 165;
+    desiredTemp = 180;
+    desiredTempResistors = 210;
+    desiredTempEnd = 155;
 
     //if(millis() - ultimMillis_heaterMain >= heaterFrequency){
     tempRest = desiredTemp - tempToShow;
@@ -462,7 +462,7 @@ void heater(){
         heating = true;
         heatingPause = false;
       }
-      else if(tempRest <= -2){  //massa alta
+      else if(tempRest <= tempMaxHot){  //massa alta
         digitalWrite(relayResistors, LOW);
         heating = true;
         heatingPause = true;
@@ -492,10 +492,7 @@ void heater(){
 void errorProcedure(){
   digitalWrite(relayFanFil, LOW);
   digitalWrite(relayFanTube, LOW);
-  digitalWrite(extruderStep, HIGH);
-  digitalWrite(coilStep, LOW);
   digitalWrite(relayResistors, LOW);
-  //desiredTempAutoSetterVariableIDon'tKnowTheName = 0;
 }
 
 void quickTempRead(){
@@ -516,15 +513,23 @@ void tempRead(){
   if(millis() - ultimMillis_tempReader >= tempReaderFrequency){
     currentTempEnd = tempSensorEnd.readCelsius();
     currentTempResistors = tempSensorResistors.readCelsius();
-    //Serial.println(currentTempEnd);
-    //Serial.println(currentTempResistors);
+    Serial.println(currentTempEnd);
+    Serial.println(currentTempResistors);
 
 
     tempToShow = (currentTempEnd * 70 + currentTempResistors * 30) / 100;
-    //Serial.println(tempToShow);
-    //Serial.println("-------------");
+    Serial.println(tempToShow);
+    Serial.println("-------------");
     ultimMillis_tempReader = millis();
   }
-  //heat suficient --> canExtrude = true
+  if(currentTempEnd >= 155 && currentTempEnd <= 175 && currentTempResistors >= 210 && currentTempResistors <= 235){
+    canExtrude = true;
+  }
+  else if(tempToShow >= 195 || currentTempEnd > 176 || currentTempResistors > 236){
+    error = true;
+  }
+  else {
+    canExtrude = false;
+  }
 }
 /*+++++++++++Definició funicons++++++++++++*/

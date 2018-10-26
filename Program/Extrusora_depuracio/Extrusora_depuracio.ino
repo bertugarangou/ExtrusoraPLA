@@ -7,16 +7,18 @@
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
     codi amb Atom i Arduino-upload package.
-  - Tots els drets reservats 2018 Albert Garangou Culebras (albertgarangou@gmail.com).
+  - Tots els drets reservats Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 
 */
 /*
 
-  -Aquesta versió del programa, conté totes les línies necessàries comentades.
-  -Funciona idènticament al original, però serveix per entendre més a fons el codi.
+  -Aquesta versió del programa, conté totes les línies necessàries comentades i amb depuració a velocitat 9600.
+  -Funciona idènticament al original, però serveix per entendre més a fons el codi i coneixer errors i els diferents càlculs del programa.
   -S'actualitza al mateix moment que l'original, també està sota la mateixa llicència i normes.
+  -Permet veure com "pensa el programa" i què fa en cada moment.
+  -Es recomana que només s'utilitzi en cas de necessitat, ja que consumeix més recursos de la placa.
 
 */
 /*+++++++++++++Llibreries++++++++++++++*/
@@ -334,7 +336,6 @@ void coilController(){
     }
   }
   else{
-    digitalWrite(coilStep, HIGH);
     coilingFwd = false;
     coilingRev = false;
   }
@@ -503,8 +504,6 @@ void heater(){
 void errorProcedure(){
   digitalWrite(relayFanFil, LOW);
   digitalWrite(relayFanTube, LOW);
-  digitalWrite(extruderStep, HIGH);
-  digitalWrite(coilStep, LOW);
   digitalWrite(relayResistors, LOW);
 }
 

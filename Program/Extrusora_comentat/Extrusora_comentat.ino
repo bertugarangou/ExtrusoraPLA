@@ -7,7 +7,7 @@
     com a Treball de Recerca a 2n de Batxillerat,
     curs 2018/2019, tutor: Jordi Fanals Oriol,
     codi amb Atom i Arduino-upload package.
-  - Tots els drets reservats 2018 Albert Garangou Culebras (albertgarangou@gmail.com).
+  - Tots els drets reservats Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 
@@ -334,8 +334,6 @@ void coilController(){  //funció per controlar la bobina
     }
   }
   else{ //si els 2 interruptors estan desactivats
-    //provar de treure la linia seguent perque no tingui espasmes
-    digitalWrite(coilStep, HIGH); //bloqueja el motor (no funcional)
     coilingFwd = false; //estableix que no bobina del revés
     coilingRev = false; //estableix que no bobina en direcció normal
   }
@@ -507,10 +505,6 @@ void heater(){  //funció per escalfar
 void errorProcedure(){  //funció amb els procediemnts per quan hi ha una emergència
   digitalWrite(relayFanFil, LOW); //activa el ventilador
   digitalWrite(relayFanTube, LOW);  //activa el ventilador
-  //la següent línia pot prevenir la corrent residual al motor
-  digitalWrite(extruderStep, HIGH); //desbloqueja/bloqueja el motor
-  //la següent línia pot prevenir la corrent residual al motor
-  digitalWrite(coilStep, LOW);  // desbloqueja/bloqueja el motor
   digitalWrite(relayResistors, LOW);  //desactiva les resistències
 }
 
