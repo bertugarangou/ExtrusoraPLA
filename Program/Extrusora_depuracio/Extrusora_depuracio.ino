@@ -526,7 +526,15 @@ void tempRead(){
     currentTempResistors = tempSensorResistors.readCelsius();
 
     tempToShow = (currentTempEnd * 70 + currentTempResistors * 30) / 100;
-
+    
+    Serial.print("Temp total: ");
+    Serial.print(tempToShow);
+    Serial.println("Temp End: ")
+    Serial.print(currentTempEnd);
+    Serial.println("temp Resistors: ");
+    Serial.print(currentTempResistors);
+    Serial.println("---------------------------");
+    
     ultimMillis_tempReader = millis();
   }
 }
