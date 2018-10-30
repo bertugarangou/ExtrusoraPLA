@@ -11,8 +11,6 @@
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
 
-*/
-/*
 
   -Aquesta versió del programa, conté totes les línies necessàries comentades.
   -Funciona idènticament al original, però serveix per entendre més a fons el codi.
