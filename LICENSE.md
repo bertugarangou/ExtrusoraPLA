@@ -1,5 +1,5 @@
 ----
-Tots els drets reservats, Albert Garangou Culebras.
+### Tots els drets reservats, Albert Garangou Culebras.
 ----
 Per a qualsevol us comercial (monetització) o no personal (us educacional i/o per una empresa/societat/corporació/etc.) d'aquest projecte, codi, peça/ces o fragment d'ell; és necessària l'autorització per escrit del propietari i firmada per ambdós (presencial o per un programa de signatures digitals, ex: PDF). El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si ho trobo necessari. En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
