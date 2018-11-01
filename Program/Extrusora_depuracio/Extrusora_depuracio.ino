@@ -10,9 +10,7 @@
   - Tots els drets reservats Albert Garangou Culebras (albertgarangou@gmail.com).
     Aquest codi és conegut com a "Proprietary software".
     Consulta el web origen per a més informació.
-
-*/
-/*
+    
 
   -Aquesta versió del programa, conté totes les línies necessàries comentades i amb depuració a velocitat 9600.
   -Funciona idènticament al original, però serveix per entendre més a fons el codi i coneixer errors i els diferents càlculs del programa.
