@@ -1,10 +1,12 @@
 ----
-### Tots els drets reservats, Albert Garangou Culebras.
+### Tots els drets reservats, Albert Garangou Culebras. Es permet l'us sense fins econòmics.
 ----
-Per a qualsevol us comercial (monetització) o no personal (us educacional i/o per una empresa/societat/corporació/etc.) d'aquest projecte, codi, peça/ces o fragment d'ell; és necessària l'autorització per escrit del propietari i firmada per ambdós (presencial o per un programa de signatures digitals, ex: PDF). El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si ho trobo necessari. En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
+Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell; és necessària l'autorització per escrit del propietari i firmada per ambdós (presencial o per un programa de signatures digitals, ex: PDF). El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si ho trobo necessari.
+Sí es permet l'ús pròpi i l'edició, mentre que s'esmenti clarament la informació corresonent de l'autor (jo) i compartir-ho amb les mateixes normes.
+En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
 ---
-Aixó és un projecte educatiu, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic, és tan fàcil com enviar un missatge al e-mail anterior demanant permís si es vol utilitzar per motius educatius o no personals i donant algunes dades com nom o e-mail i al 99% dels casos quasi segur que ho aceptaré, és només per saber si en un futur el projecte és útil per algú més, i no ha acabat abandonat. Utilitzeu el *SENTIT COMÚ*, moltes gràcies ;).
+Aixó és un projecte educatiu, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic. Utilitzeu el *SENTIT COMÚ*, moltes gràcies ;).
 
 ---
 Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Decret Legislatiu 1/1996, del 12 d'abril](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930) del *BOE*. Els següents articles contenen informació destacada al respecte:
@@ -57,5 +59,7 @@ Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Dec
   * En cas de modifiació de la llei anterior de forma oficial, si no s'especifica el contrari en ella, es manté l'establerta anteriorment en aquest document.
   * Degut a un cas real, tal com està establert, no entendre o no estar escrites aquestes normes al moment del plàgi, no es permet l'apropiació.
   * Em reservo el dret a canviar qualsevol norma i acord al ser el propietari
+
+Moltes gràcies.
 
 Més informació sobre aquests articles es poden trobar al *"Boletín Oficial del Estado"*: https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930
