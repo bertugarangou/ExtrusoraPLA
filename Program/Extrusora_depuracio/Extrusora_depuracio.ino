@@ -535,6 +535,15 @@ void tempRead(){
     
     ultimMillis_tempReader = millis();
   }
+  if(currentTempEnd >= 155 && currentTempEnd <= 175 && currentTempResistors >= 210 && currentTempResistors <= 235){
+    canExtrude = true;
+  }
+  else if(tempToShow >= 195 || currentTempEnd > 176 || currentTempResistors > 236){
+    error = true;
+  }
+  else {
+    canExtrude = false;
+  }
 }
 /*+++++++++++Definició funicons++++++++++++*/
 //end
