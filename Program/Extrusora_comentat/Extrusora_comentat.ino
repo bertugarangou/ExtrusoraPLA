@@ -528,6 +528,15 @@ void tempRead(){  //funció per llegir la temp i calcular la mitjana no proporci
     //un 70% de la temp total és del final de l'extrusor i un 30% de les resistències
     ultimMillis_tempReader = millis();  //estableix quan ha fet per últim cop la funció
   }
+  if(currentTempEnd >= 155 && currentTempEnd <= 175 && currentTempResistors >= 210 && currentTempResistors <= 235){
+    canExtrude = true;
+  }
+  else if(tempToShow >= 195 || currentTempEnd > 176 || currentTempResistors > 236){
+    error = true;
+  }
+  else {
+    canExtrude = false;
+  }
 }
 /*+++++++++++Definició funicons++++++++++++*/
 //end
