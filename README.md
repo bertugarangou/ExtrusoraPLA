@@ -12,7 +12,7 @@ En el cas que es vulgui construir:
 * **Bobina.** Per guardar el fil obtingut
 * **Font d'alimentació.** Per l'Arduino, ventiladors i motors i resistència, de 230V, 12V i 9V/5.05V.
 
-També és recomanable entendre el llenguatge de programació C++, el funcionament de la plataforma Arduino i l'Arduino IDE.
+També és recomanable entendre el llenguatge de programació C i C++ i el funcionament de la plataforma Arduino i Arduino IDE.
 
 #### Peces en 3D
 
