@@ -22,7 +22,7 @@ D'altres peces, les que estan en contacte amb zones calentes, estan fetes amb ac
 
 Alerta: els fitxers han de ser oberts amb la versió 2019 per no tenir errors de visualització. Els fitxers ".dwg" han de ser oberts amb Innventor millor que amb AutoCAD. Els programes d'Autodesk són de llicència gratuita educativa.
 
-### Instalació
+### Instal·lació
 
 Simplement descarrega el programa [Extrusora.ino](/Program/Extrusora/Extrusora.ino), compila'l a la placa i ja estarà llest!
 També pots descarregar la [versió comentada](/Program/Extrusora_comentat/Extrusora_comentat.ino) per aprendre com funciona i la [versió de deuració](/Program/Extrusora_depuracio/Extrusora_depuracio.ino) per comporvar totes les funcions i dades amb connexió sèrie (valor de refresc: 9600u).
