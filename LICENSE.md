@@ -1,8 +1,11 @@
 ----
 ### Tots els drets reservats, Albert Garangou Culebras. Es permet l'us sense fins econòmics.
 ----
-Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell; és necessària l'autorització per escrit del propietari i firmada per ambdós (presencial o per un programa de signatures digitals, ex: PDF). El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si ho trobo necessari.
-Sí es permet l'ús pròpi i l'edició, mentre que s'esmenti clarament la informació corresonent de l'autor (jo) i compartir-ho amb les mateixes normes.
+Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell; és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut o per excessives modificacions permeses.
+
+Sí es permet l'ús pròpi i l'edició amb modificacions permeses, mentre que s'esmenti clarament la informació corresonent de l'autor original.
+
+Les modificacions permeses són totes aquelles menors que no alteren el funcionament principal sinò que el regulen o el permeten complir si és degut. No és necessàri l'esment d'aquests canvis, però si es tracta d'una millora, es recomana informar al propietari o presentar el canvi a Github (
 En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
 ---
