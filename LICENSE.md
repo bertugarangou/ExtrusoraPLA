@@ -5,7 +5,7 @@ Per a qualsevol us comercial (monetització) o personal (us educacional i/o per 
 
 Sí es permet l'ús pròpi i l'edició amb qualsevol tipus de modificació, mentre que s'esmenti clarament la informació corresonent de l'autor original. No es permet compartir l'obra per cap mitjà sense atribució deguda i completa, permís denegat o per aprofitament econòmic.
 
-Les modificacions permeses són totes aquelles que no alteren el funcionament principal sinò que el regulen o el permeten complir si és degut. No és necessàri l'esment d'aquests canvis, però si es tracta d'una millora, es recomana informar al propietari o presentar el canvi a Github o per un altre medi per afavorir el ***codi lliure***.
+Les modificacions permeses són totes aquelles que no alteren el funcionament principal sinò que el regulen o el permeten complir si és degut. No és necessàri l'esment d'aquests canvis, però si es tracta d'una millora, es recomana informar al propietari o presentar el canvi a Github o per un altre medi per afavorir el *codi lliure*.
 
 En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
