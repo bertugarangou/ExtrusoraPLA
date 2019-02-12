@@ -26,3 +26,15 @@
 
  ### Errors coneguts
   * El sensor IR detecta el fil per cualpa d'alguns llums d'habitacions. 
+---
+## Versió 1.1 (16/10/2018)
+ ### Millores
+  * El sensor IR detecta correctament el filament amb un protector.
+ ---
+ ## Versió 1.2 (22/11/2018)
+  ### Millores
+   * Adaptació per entrega TdR
+ ---
+  ## Versió 1.3 (12/02/2019)
+   ### Millores
+    * Rectificació llicència
