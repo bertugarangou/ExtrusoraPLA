@@ -1,18 +1,14 @@
 ----
 ### Tots els drets reservats, Albert Garangou Culebras. Es permet l'us sense fins econòmics.
 ----
-Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell, és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut (determinat pel propietari) o per excessives modificacions permeses.
+Aquí només es troba un fragment del projecte. Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell, és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut (determinat pel propietari) o per altrs causes.
 
-Sí es permet l'ús pròpi i l'edició amb qualsevol tipus de modificació, mentre que s'esmenti clarament la informació corresonent de l'autor original. No es permet compartir l'obra per cap mitjà sense atribució deguda i completa, permís denegat o per aprofitament econòmic.
-
-Les modificacions permeses són totes aquelles que no alteren el funcionament principal sinò que el regulen o el permeten complir si és degut. No és necessàri l'esment d'aquests canvis, però si es tracta d'una millora, es recomana informar al propietari o presentar el canvi a Github o per un altre medi per afavorir el *codi lliure*.
+No es permet compartir l'obra per cap mitjà sense atribució i permís degut/a i complet/a.
 
 En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
-No entendre el sentit inicial de la llicència no permet eludir-la.
-
 ---
-**Aixó és un projecte educatiu, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic. Utilitzeu el SENTIT COMÚ, moltes gràcies ;).**
+**Aixó és un projecte educatiu i personal, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic. Utilitzeu el SENTIT COMÚ, moltes gràcies.**
 
 ---
 Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Decret Legislatiu 1/1996, del 12 d'abril](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930) del *BOE*. Els següents articles contenen informació destacada al respecte:
