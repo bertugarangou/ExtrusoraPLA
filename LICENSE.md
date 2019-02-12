@@ -1,5 +1,5 @@
 ----
-### Tots els drets reservats, © Albert Garangou Culebras.
+### Tots els drets reservats, Albert Garangou Culebras.
 ----
 Aquí només es troba un fragment del projecte. Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell, és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut (determinat pel propietari) o per altrs causes.
 
