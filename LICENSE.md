@@ -66,4 +66,5 @@ Moltes gràcies.
 
 Més informació sobre aquests articles es poden trobar al *"Boletín Oficial del Estado"*: https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930
 
+----
 Contacteu a albertgarangou@gmail.com per qualsevol dubte o petició.
