@@ -1,6 +1,7 @@
 # Extrusora PLA
 
 Extrusora de plàstic PLA per produir filament reciclat per Impressores 3D.
+
 Accés al projecte limitat. Veieu "[llicència](LICENSE.md)" o a través de [contacte](mailto:albertgarangou@gmail.com).
 
 
