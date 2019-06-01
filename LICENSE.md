@@ -1,14 +1,14 @@
 ----
 ### Tots els drets reservats, Albert Garangou Culebras.
 ----
-Aquí només es troba un fragment del projecte. Per a qualsevol us comercial (monetització) o personal (us educacional i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell, és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut (determinat pel propietari) o per altrs causes.
+Aquí només es troba l'anunciament del projecte. Per a qualsevol us comercial (monetització) o personal (us educatiu i/o per una empresa/societat/corporació/etc.) de fi econòmic d'aquest projecte, codi, peça/ces o fragment d'ell, és necessària l'autorització per escrit del propietari i firmada per ambdós. El dret de canvi de llicència en qualsevol moment queda reservat i possible pel propietari tanmateix com el dret d'abolir un contracte/autorització si és necessari per un ús indegut (determinat pel propietari) o per altrs causes.
 
 No es permet compartir l'obra per cap mitjà sense atribució i permís degut/a i complet/a.
 
 En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir en cada us, podeu utilitzar la direcció e-mail: "*albertgarangou@gmail.com*".
 
 ---
-**Aixó és un projecte educatiu i personal, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic. Utilitzeu el SENTIT COMÚ, moltes gràcies.**
+**Aixó és un projecte d'origen educatiu i personal, si us plau, respecteu els drets per tot l'esforç que ha costat tan personal com econòmic. Utilitzeu el SENTIT COMÚ, moltes gràcies.**
 
 ---
 Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Decret Legislatiu 1/1996, del 12 d'abril](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930) del *BOE*. Els següents articles contenen informació destacada al respecte:
@@ -65,3 +65,5 @@ Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Dec
 Moltes gràcies.
 
 Més informació sobre aquests articles es poden trobar al *"Boletín Oficial del Estado"*: https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930
+
+Contacteu a albertgarangou@gmail.com per qualsevol dubte o petició.
