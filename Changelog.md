@@ -38,3 +38,7 @@
   ## Versió 1.3 (12/02/2019)
    ### Millores
     * Rectificació llicència
+ ---
+  ## Versió 1.3.1 (01/06/2019)
+   ### Canvis
+    * Restrinció de l'accés al projecte amb efecte retroactiu. Ja no es permet l'accés públic, només sota demanda.
