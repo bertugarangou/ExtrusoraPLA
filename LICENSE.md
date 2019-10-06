@@ -13,6 +13,8 @@ En cas de peticions, per a més informació o per conèixer què s'ha d'atribuir
 ---
 Aquesta llicència ve donada per la llei de [Propietat Intelectual del Reial Decret Legislatiu 1/1996, del 12 d'abril](https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930) del *BOE*. Els següents articles contenen informació destacada al respecte:
 
+Avis: citacions i recurs del web en castellà.
+
 **Artículo 1. Hecho generador.**
 
 *La propiedad intelectual de una obra literaria, artística o científica corresponde al autor por el solo hecho de su creación.*
