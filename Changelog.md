@@ -1,25 +1,26 @@
 # Historial de versions
 
-## Com funciona:
----
-## Versió [NUMERO] (Data) - *CodeName*
- ## <No Funcional>
+### Com funciona:
+### Versió [NUMERO] (Data) - *CodeName*
+ ### <No Funcional>
 
- ### Millores
+ #### Millores
 
   * Descripció
   * Descripció
       * Contingut
 
- ### Correccions
+ #### Correccions
   * Descripció
 
- ### Errors coneguts
+ #### Errors coneguts
   * Descripció
 
- ### Més informació
+ #### Més informació
   * "Commits"
 
+---
+---
 ---
 
 ## Versió 1 (15/10/2018) - *Inicial*
