@@ -13,7 +13,7 @@ Accés al projecte limitat. Veieu "[llicència](LICENSE.md)" o a través de [con
 
 ## Llicència
 **Tots els drets reservats, Albert Garangou Culebras.**
-Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls sobre el que no és permés.
+Podeu trobar una còpia de la llicència a [LICENSE.md](LICENSE.md) i més detalls sobre el que és permés.
 
 ## Reconeixaments
 * *Tutor del Treball de Recerca* - **Jordi Fanals Oriol**
