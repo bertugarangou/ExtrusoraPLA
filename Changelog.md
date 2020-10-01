@@ -43,3 +43,7 @@
   ## Versió 1.3.1 (01/06/2019)
    ### Canvis
    * Restrinció de l'accés al projecte amb efecte retroactiu. Ja no es permet l'accés públic, només sota demanda.
+ ---
+  ## Versió 1.3.1 (01/10/2020)
+   ### Canvis
+   * Modificació de l'estructura de llicència i usos del projecte per arxivar-lo indefinidament.
