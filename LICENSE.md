@@ -61,12 +61,10 @@ Avis: citacions i recurs del web en castellà.
 
 **Alres normes aplicades:**
   * En cas de modifiació de la llei anterior de forma oficial, si no s'especifica el contrari en ella, es manté l'establerta anteriorment en aquest document.
-  * Degut a un cas real, tal com està establert, no entendre o no estar escrites aquestes normes al moment del plàgi, no es permet l'apropiació.
+  * No es permet l'apropiació.
   * Em reservo el dret a canviar qualsevol norma i acord al ser el propietari
 
 Moltes gràcies.
-
-Més informació sobre aquests articles es poden trobar al *"Boletín Oficial del Estado"*: https://www.boe.es/buscar/act.php?id=BOE-A-1996-8930
 
 ----
 Contacteu a albertgarangou@gmail.com per qualsevol dubte o petició.
